@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DoorOpenerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,5 +17,7 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
     Route::view('door-opener', 'tools.door-opener')->name('door-opener');
+    Route::post('door-opener/door', [DoorOpenerController::class, 'openDoor'])->name('door-opener.open-door');
+    Route::post('door-opener/gate', [DoorOpenerController::class, 'openGate'])->name('door-opener.open-gate');
     Route::view('wayfinder', 'tools.wayfinder')->name('wayfinder');
 });

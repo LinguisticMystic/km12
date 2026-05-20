@@ -1,0 +1,213 @@
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
+#include <UniversalTelegramBot.h>
+#include <map>
+#include "secrets.h"
+
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* botToken = BOT_TOKEN;
+const String group_chat_id = GROUP_CHAT_ID;
+
+// Pins
+const int statusLEDPin = 15;
+const int doorRelayPin = 16;
+const int gateRelayPin = 17;
+const int buttonPin = 39;
+
+WiFiClientSecure secured_client;
+UniversalTelegramBot bot(botToken, secured_client);
+
+unsigned long lastTimeBotRan = 0;
+const unsigned long botInterval = 2000;
+
+bool isDoorOpen = false;
+unsigned long doorOpenStartTime = 0;
+const unsigned long doorOpenDuration = 10000;
+
+bool isGateOpen = false;
+bool gateNextOpen = true;
+
+bool lastButtonState = LOW;
+unsigned long buttonPressStart = 0;
+bool buttonPressed = false;
+
+bool waitingForTelegram = true;
+bool firstMessageHandled = false;
+bool hasSaidLabrit = false;
+
+unsigned long ignoreButtonUntil = 0;  // ignore doorbell after gate trigger
+
+std::map<String, unsigned long> lastInfoResponseTime;
+const unsigned long infoResponseCooldown = 4UL * 60 * 60 * 1000;
+
+const String keyboardJson =
+  "{\"keyboard\":[[\"🚪 Durvis\", \"⛩️ Vārti\"]],"
+  "\"resize_keyboard\":true,"
+  "\"one_time_keyboard\":false}";
+
+// New variables for update timeout fix
+unsigned long lastUpdateReceivedTime = 0;
+const unsigned long updateTimeout = 5UL * 60 * 1000; // 5 minutes
+
+void blinkPattern(int times, int delayMs = 200) {
+  for (int i = 0; i < times; i++) {
+    digitalWrite(statusLEDPin, HIGH);
+    delay(delayMs);
+    digitalWrite(statusLEDPin, LOW);
+    delay(delayMs);
+  }
+}
+
+void blinkWhile(bool (*condition)(), int interval = 500) {
+  while (condition()) {
+    digitalWrite(statusLEDPin, HIGH);
+    delay(interval);
+    digitalWrite(statusLEDPin, LOW);
+    delay(interval);
+  }
+}
+
+bool isWiFiConnecting() {
+  return WiFi.status() != WL_CONNECTED;
+}
+
+void setup() {
+  pinMode(statusLEDPin, OUTPUT);
+  pinMode(doorRelayPin, OUTPUT);
+  pinMode(gateRelayPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
+  digitalWrite(statusLEDPin, LOW);
+
+  digitalWrite(doorRelayPin, HIGH);
+  digitalWrite(gateRelayPin, HIGH);
+
+  Serial.begin(115200);
+  blinkPattern(2); // Startup
+
+  WiFi.begin(ssid, password);
+  blinkWhile(isWiFiConnecting, 500);
+  blinkPattern(5); // Wi-Fi connected
+
+  secured_client.setInsecure();
+
+  if (bot.getMe()) {
+    bot.sendMessage(group_chat_id, "🌅 *Labrīt!*", "Markdown");
+    hasSaidLabrit = true;
+    blinkPattern(3, 150); // Telegram connected
+  }
+
+  lastUpdateReceivedTime = millis();
+}
+
+void handleUpdates() {
+  int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+
+  if (numNewMessages > 0) {
+    lastUpdateReceivedTime = millis(); // reset timeout when messages arrive
+
+    if (!hasSaidLabrit) {
+      bot.sendMessage(group_chat_id, "🌅 *Labrīt!*", "Markdown");
+      hasSaidLabrit = true;
+    }
+    blinkPattern(3, 150); // Telegram connected
+
+    for (int i = 0; i < numNewMessages; i++) {
+      telegramMessage msg = bot.messages[i];
+      bot.last_message_received = msg.update_id;
+
+      String chat_id = msg.chat_id;
+      String text = msg.text;
+      String user_id = msg.from_id;
+
+      if (chat_id != group_chat_id) continue;
+      if (text == "") continue;
+
+      int atIndex = text.indexOf('@');
+      if (atIndex != -1) {
+        text = text.substring(0, atIndex);
+      }
+
+      if (!firstMessageHandled) {
+        firstMessageHandled = true;
+        waitingForTelegram = false;
+      }
+
+      if (text == "/durvis" || text == "🚪 Durvis") {
+        digitalWrite(doorRelayPin, LOW);
+        digitalWrite(statusLEDPin, HIGH);
+        isDoorOpen = true;
+        doorOpenStartTime = millis();
+        bot.sendMessage(chat_id, "🚪 *Durvis vaļā*", "Markdown");
+      }
+      else if (text == "/varti" || text == "⛩️ Vārti") {
+        digitalWrite(gateRelayPin, LOW);
+        delay(1000);
+        digitalWrite(gateRelayPin, HIGH);
+        bot.sendMessage(chat_id, "⛩️ *Vārti veras!*", "Markdown");
+
+        ignoreButtonUntil = millis() + 30000;  // ignore button after gate trigger
+      }
+      else {
+        unsigned long now = millis();
+        if (lastInfoResponseTime.find(user_id) == lastInfoResponseTime.end() ||
+            now - lastInfoResponseTime[user_id] > infoResponseCooldown) {
+          
+          String keyboardJson = "[[\"/durvis\", \"/varti\"]]";
+          bot.sendMessageWithReplyKeyboard(chat_id,
+            "🧙🏼‍♂️ Sveiki! Esmu KM12 Virinātājs!\n\n🚪 Lai atvērtu durvis - /durvis\n⛩️ Lai atvērtu vārtus - /varti",
+            "", keyboardJson, true);
+          
+          lastInfoResponseTime[user_id] = now;
+        }
+      }
+    }
+  } else {
+    // No new messages - check timeout to reset update offset and recover
+    if (millis() - lastUpdateReceivedTime > updateTimeout) {
+      bot.last_message_received = 0;
+      lastUpdateReceivedTime = millis();
+      Serial.println("Resetting bot.last_message_received due to timeout");
+    }
+  }
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    if (millis() - lastTimeBotRan > botInterval) {
+      handleUpdates();
+      lastTimeBotRan = millis();
+    }
+
+    if (isDoorOpen && millis() - doorOpenStartTime > doorOpenDuration) {
+      digitalWrite(doorRelayPin, HIGH);
+      digitalWrite(statusLEDPin, LOW);
+      isDoorOpen = false;
+      bot.sendMessage(group_chat_id, "🔐 *Durvis ciet*", "Markdown");
+    }
+
+    // Only check button if we're outside the ignore window
+    if (millis() > ignoreButtonUntil) {
+      bool currentButtonState = digitalRead(buttonPin);
+      if (lastButtonState == LOW && currentButtonState == HIGH) {
+        buttonPressStart = millis();
+        buttonPressed = true;
+      }
+      if (lastButtonState == HIGH && currentButtonState == LOW && buttonPressed) {
+        if (millis() - buttonPressStart >= 350) {
+          bot.sendMessage(group_chat_id, "🚶 *Kāds ir pie durvīm!*", "Markdown");
+        }
+        buttonPressed = false;
+      }
+      lastButtonState = currentButtonState;
+    }
+  }
+
+  if (waitingForTelegram && !firstMessageHandled) {
+    digitalWrite(statusLEDPin, HIGH);
+    delay(300);
+    digitalWrite(statusLEDPin, LOW);
+    delay(1000);
+  }
+}
