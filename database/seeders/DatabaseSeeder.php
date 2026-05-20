@@ -12,15 +12,25 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->admin()->create([
-            'name' => env('ADMIN_NAME', 'Admin'),
-            'email' => env('ADMIN_EMAIL', 'admin@example.com'),
-            'password' => env('ADMIN_PASSWORD', 'password'),
-        ]);
+        // Explicit attributes only: Docker runs composer --no-dev (no Faker / fake() helper).
+        User::query()->updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@example.com')],
+            [
+                'name' => env('ADMIN_NAME', 'Admin'),
+                'password' => env('ADMIN_PASSWORD', 'password'),
+                'is_admin' => true,
+                'email_verified_at' => now(),
+            ],
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        User::query()->updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => 'password',
+                'is_admin' => false,
+                'email_verified_at' => now(),
+            ],
+        );
     }
 }

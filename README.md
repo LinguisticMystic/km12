@@ -30,9 +30,12 @@ Laravel app with tools intended for members of the **KM12** community. Local dev
 
    ```bash
    docker compose exec app php artisan migrate
+   docker compose exec app php artisan db:seed
    ```
 
-4. Open **`http://localhost:<HTTP_PORT>`** (default 8080).
+4. Open **`http://localhost:<HTTP_PORT>`** (default 8080). Admin panel: **`/admin/login`** (seeded user from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`).
+
+   Filament CSS/JS are copied into `public/` during the image build (`php artisan filament:assets`). After changing Filament version, rebuild: `docker compose up -d --build`.
 
 Useful: `docker compose logs -f`, `docker compose down` (add `-v` to drop MySQL data).
 

@@ -1,7 +1,23 @@
 # syntax=docker/dockerfile:1
 
+# Vite/Tailwind import Filament and Laravel CSS from vendor/ (excluded from build context).
+FROM php:8.3-cli-alpine AS vendor
+# Match app image extensions so composer platform checks pass (Filament needs intl, zip, etc.).
+RUN apk add --no-cache \
+        icu-dev \
+        libzip-dev \
+        oniguruma-dev \
+        $PHPIZE_DEPS \
+    && docker-php-ext-install intl opcache pdo_mysql mbstring zip \
+    && apk del $PHPIZE_DEPS
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --prefer-dist --no-autoloader
+
 FROM node:22-alpine AS frontend
 WORKDIR /app
+COPY --from=vendor /app/vendor ./vendor
 COPY package.json ./
 RUN npm install
 COPY . .
@@ -34,6 +50,7 @@ RUN composer dump-autoload --optimize --classmap-authoritative
 RUN cp .env.example .env \
     && php artisan key:generate --force \
     && php artisan package:discover --ansi \
+    && php artisan filament:assets \
     && rm -f .env
 
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint-app.sh
