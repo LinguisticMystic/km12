@@ -13,7 +13,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\Operation;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -47,8 +46,8 @@ class UserResource extends Resource
                 TextInput::make('password')
                     ->password()
                     ->revealable()
-                    ->label(fn (Operation $operation): string => $operation === Operation::Create ? 'Password' : 'New password')
-                    ->required(fn (Operation $operation): bool => $operation === Operation::Create)
+                    ->label(fn (string $operation): string => $operation === 'create' ? 'Password' : 'New password')
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->dehydrateStateUsing(fn (string $state): string => Hash::make($state)),
             ]);
