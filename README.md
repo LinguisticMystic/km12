@@ -31,9 +31,14 @@ Laravel app with tools intended for members of the **KM12** community. Local dev
    ```bash
    docker compose exec app php artisan migrate
    docker compose exec app php artisan db:seed
+   docker compose exec app php artisan storage:link
    ```
 
-4. Open **`http://localhost:<HTTP_PORT>`** (default 8080). Admin panel: **`/admin/login`** (seeded user from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`).
+4. Open **`http://localhost:<HTTP_PORT>`** (default 8080).
+
+   - **Members** (admin and non-admin): sign in at **`/login`**, then open **Door opener** or **Wayfinder** from the home page. There is no public registration; admins create users in the panel.
+   - **Admin panel**: **`/admin/login`** (seeded admin from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`). Non-admin accounts cannot access the panel.
+   - After `db:seed`, a non-admin test user is available: `test@example.com` / `password`.
 
    Filament CSS/JS are copied into `public/` during the image build (`php artisan filament:assets`). After changing Filament version, rebuild: `docker compose up -d --build`.
 
