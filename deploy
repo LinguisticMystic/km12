@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+git pull
+docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build
