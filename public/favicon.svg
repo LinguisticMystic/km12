@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="KM12">
+    <style>
+        .bg { fill: #FDFDFC; }
+        .text { fill: #1b1b18; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 600; letter-spacing: -0.06em; }
+        @media (prefers-color-scheme: dark) {
+            .bg { fill: #0a0a0a; }
+            .text { fill: #EDEDEC; }
+        }
+    </style>
+    <rect class="bg" width="32" height="32" rx="4" />
+    <text class="text" x="16" y="20.5" text-anchor="middle">KM12</text>
+</svg>

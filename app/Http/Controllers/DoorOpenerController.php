@@ -17,7 +17,7 @@ class DoorOpenerController extends Controller
         $this->queue->queue('door');
 
         return response()->json([
-            'message' => 'Door open requested.',
+            'open_seconds' => config('door_opener.door_open_seconds'),
         ]);
     }
 
@@ -26,7 +26,7 @@ class DoorOpenerController extends Controller
         $this->queue->queue('gate');
 
         return response()->json([
-            'message' => 'Gate open requested.',
+            'open_seconds' => config('door_opener.door_open_seconds'),
         ]);
     }
 

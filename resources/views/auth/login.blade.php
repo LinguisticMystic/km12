@@ -8,7 +8,7 @@
             Log in
         </h1>
         <p class="mt-3 text-center text-base text-[#706f6c] dark:text-[#A1A09A]">
-            Sign in with the account created for you. New accounts are created by administrators only.
+            Some tools are only available to signed-in members. Sign in with the account created for you — new accounts are created by administrators only.
         </p>
 
         <form method="POST" action="{{ route('login') }}" class="mt-10 space-y-6">
