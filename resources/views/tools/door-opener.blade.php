@@ -146,6 +146,7 @@
             type="button"
             id="open-door"
             data-action="door"
+            data-label="Open door"
             aria-label="Open door"
             class="door-opener-control group relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
         >
@@ -158,7 +159,7 @@
                     </g>
                 </svg>
             </span>
-            <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Open door</span>
+            <span class="door-opener-label flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Open door</span>
             <span class="door-opener-progress" aria-hidden="true"><span class="door-opener-progress__fill"></span></span>
         </button>
 
@@ -166,6 +167,7 @@
             type="button"
             id="open-gate"
             data-action="gate"
+            data-label="Open gate"
             aria-label="Open gate"
             class="door-opener-control group relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
         >
@@ -186,7 +188,7 @@
                     </g>
                 </svg>
             </span>
-            <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Open gate</span>
+            <span class="door-opener-label flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Open gate</span>
             <span class="door-opener-progress" aria-hidden="true"><span class="door-opener-progress__fill"></span></span>
         </button>
     </div>
@@ -224,6 +226,25 @@
 
             function iconFor(button) {
                 return button.querySelector('.door-opener-icon');
+            }
+
+            function labelFor(button) {
+                return button.querySelector('.door-opener-label');
+            }
+
+            function setButtonLabel(button, text) {
+                const label = labelFor(button);
+                if (label) {
+                    label.textContent = text;
+                }
+
+                button.setAttribute('aria-label', text);
+            }
+
+            function resetButtonLabels() {
+                controls.forEach((btn) => {
+                    setButtonLabel(btn, btn.dataset.label || '');
+                });
             }
 
             function setIconState(button, state) {
@@ -285,6 +306,7 @@
                 busy = true;
                 setControlsDisabled(true);
                 setStatus('');
+                setButtonLabel(button, 'Opening...');
                 setIconState(button, 'opening');
 
                 const openingDone = wait(timing.openingMs);
@@ -318,6 +340,7 @@
                     setStatus(error.message || 'Something went wrong.', true);
                 } finally {
                     resetAllIcons();
+                    resetButtonLabels();
                     stopAllProgress();
                     busy = false;
                     setControlsDisabled(false);
