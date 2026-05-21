@@ -83,10 +83,6 @@
             transition: opacity 150ms ease;
         }
 
-        .dark .door-opener-progress {
-            background: rgb(237 237 236 / 8%);
-        }
-
         .door-opener-control.is-progressing .door-opener-progress {
             opacity: 1;
         }
@@ -105,8 +101,14 @@
             background: #1b1b18;
         }
 
-        .dark .door-opener-progress__fill {
-            background: #EDEDEC;
+        @media (prefers-color-scheme: dark) {
+            .door-opener-progress {
+                background: rgb(237 237 236 / 8%);
+            }
+
+            .door-opener-progress__fill {
+                background: #EDEDEC;
+            }
         }
 
         .door-opener-control.is-progressing-active .door-opener-progress__fill {
