@@ -8,7 +8,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('wayfinder', 'tools.wayfinder')->name('wayfinder');
+require __DIR__.'/wayfinder.php';
+
 Route::view('calendar', 'tools.calendar')->name('calendar');
 Route::view('about', 'about')->name('about');
 
