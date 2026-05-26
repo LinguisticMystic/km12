@@ -7,9 +7,6 @@
         <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
             Wayfinder
         </h1>
-        <h2 class="mt-2 text-xl font-medium text-[#706f6c] dark:text-[#A1A09A]">
-            1st floor
-        </h2>
 
         <style>
             .wayfinder {
@@ -114,17 +111,7 @@
                 margin-top: 1.25rem;
             }
 
-            .wayfinder #room-list h3 {
-                font-size: 0.875rem;
-                font-weight: 600;
-                color: #706f6c;
-                margin: 0 0 0.5rem;
-            }
-
-            .dark .wayfinder #room-list h3 {
-                color: #A1A09A;
-            }
-
+            .wayfinder #floor-tabs,
             .wayfinder #room-list-items {
                 list-style: none;
                 margin: 0;
@@ -134,6 +121,15 @@
                 gap: 0.5rem;
             }
 
+            .wayfinder #room-list-items {
+                margin-top: 0.75rem;
+            }
+
+            .wayfinder #room-list-items:empty {
+                margin-top: 0;
+            }
+
+            .wayfinder .floor-tab,
             .wayfinder .room-list-item {
                 appearance: none;
                 border: 1px solid #e3e3e0;
@@ -147,42 +143,40 @@
                 transition: background 0.15s, border-color 0.15s, color 0.15s;
             }
 
+            .wayfinder .floor-tab:hover,
             .wayfinder .room-list-item:hover {
                 border-color: #e67e22;
                 background: #fff7ed;
             }
 
+            .wayfinder .floor-tab.is-active,
             .wayfinder .room-list-item.is-active {
                 border-color: #e67e22;
                 background: #e67e22;
                 color: #fff;
             }
 
+            .dark .wayfinder .floor-tab,
             .dark .wayfinder .room-list-item {
                 border-color: #3E3E3A;
                 background: #161615;
                 color: #EDEDEC;
             }
 
+            .dark .wayfinder .floor-tab:hover,
             .dark .wayfinder .room-list-item:hover {
                 border-color: #e67e22;
                 background: #2a2118;
             }
 
+            .dark .wayfinder .floor-tab.is-active,
             .dark .wayfinder .room-list-item.is-active {
                 background: #e67e22;
                 color: #fff;
             }
         </style>
 
-        <p id="grid-status" style="display: none"></p>
-        <p id="file-fallback" style="display: none; font-size: 14px">
-            <label for="json-file"><strong>floor-plan.json</strong> (manual fallback): </label>
-            <input type="file" id="json-file" accept=".json,application/json" />
-            <span style="margin-left: 0.75rem"></span>
-            <label for="floor-image-file">Floor image: </label>
-            <input type="file" id="floor-image-file" accept=".jpg,.jpeg,image/jpeg,.png,image/png" />
-        </p>
+        <p id="grid-status" style="visibility: hidden" aria-live="polite"></p>
 
         <div id="map-container">
             <img id="floor-img" alt="Floor plan" width="595" height="842" />
@@ -193,8 +187,8 @@
             </svg>
         </div>
 
-        <nav id="room-list" class="room-list" aria-label="Rooms">
-            <h3>Rooms</h3>
+        <nav id="room-list" class="room-list" aria-label="Wayfinder navigation">
+            <ul id="floor-tabs" role="tablist" aria-label="Floors"></ul>
             <ul id="room-list-items"></ul>
         </nav>
 

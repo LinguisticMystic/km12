@@ -14,6 +14,19 @@ return [
 
     'assets_path' => 'assets/wayfinder',
 
-    'floor_plan_image' => 'floor-plan.jpg',
+    'floors' => [
+        [
+            'id' => '1',
+            'label' => '1st floor',
+            'json' => 'floor-plan.json',
+            'image' => '1st-floor.jpg',
+        ],
+        [
+            'id' => '2',
+            'label' => '2nd floor',
+            'json' => '2nd-floor.json',
+            'image' => '2nd-floor.jpg',
+        ],
+    ],
 
 ];

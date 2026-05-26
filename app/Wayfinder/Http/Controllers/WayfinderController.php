@@ -11,10 +11,19 @@ class WayfinderController extends Controller
     {
         $base = asset(config('wayfinder.assets_path'));
 
+        $floors = collect(config('wayfinder.floors', []))
+            ->map(fn (array $floor) => [
+                'id' => $floor['id'],
+                'label' => $floor['label'],
+                'json' => $base.'/'.($floor['json'] ?? ''),
+                'image' => $base.'/'.($floor['image'] ?? ''),
+            ])
+            ->values()
+            ->all();
+
         return view('wayfinder::show', [
             'mapAssets' => [
-                'json' => $base.'/floor-plan.json',
-                'png' => $base.'/'.config('wayfinder.floor_plan_image'),
+                'floors' => $floors,
             ],
             'scriptUrl' => $base.'/wayfinder.js',
         ]);
