@@ -102,7 +102,7 @@ window.__FLOOR_PLAN_DATA__ = { "compressionlevel":-1,
         }, 
         {
          "id":3,
-         "image":"floor-plan.png",
+         "image":"floor-plan.jpg",
          "imageheight":1123,
          "imagewidth":793,
          "locked":true,

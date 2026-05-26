@@ -14,6 +14,6 @@ return [
 
     'assets_path' => 'assets/wayfinder',
 
-    'floor_plan_image' => 'floor-plan.png',
+    'floor_plan_image' => 'floor-plan.jpg',
 
 ];

@@ -187,7 +187,7 @@
             <input type="file" id="json-file" accept=".json,application/json" />
             <span style="margin-left: 0.75rem"></span>
             <label for="floor-image-file">Floor image: </label>
-            <input type="file" id="floor-image-file" accept=".png,image/png" />
+            <input type="file" id="floor-image-file" accept=".jpg,.jpeg,image/jpeg,.png,image/png" />
         </p>
 
         <div id="map-container">
