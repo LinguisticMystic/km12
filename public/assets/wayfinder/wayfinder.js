@@ -1,5 +1,5 @@
 /**
- * KM12 floor wayfinder — expects window.WAYFINDER_ASSETS with json, png, dataJs URLs.
+ * KM12 floor wayfinder — expects window.WAYFINDER_ASSETS with json and png URLs.
  */
 var pathCell = 4;
 var pathCols = 0;
@@ -166,6 +166,37 @@ function roomLabelHidden(obj) {
     return false;
 }
 
+function roomLabelProperty(obj, name) {
+    var props = obj.properties || [];
+    for (var i = 0; i < props.length; i++) {
+        if (props[i].name === name) {
+            var v = props[i].value;
+            if (v === undefined || v === null || v === "") return null;
+            return v;
+        }
+    }
+    return null;
+}
+
+function roomLabelColor(obj) {
+    var color = roomLabelProperty(obj, "labelColor");
+    return color == null ? null : String(color).trim();
+}
+
+function roomLabelFontSize(obj) {
+    var n = Number(roomLabelProperty(obj, "labelFontSize"));
+    return isNaN(n) || n <= 0 ? null : n;
+}
+
+var defaultLabelColor = "#fff";
+var defaultLabelFontSize = 12;
+var defaultLabelBgColor = "#e67e22";
+
+function roomLabelBgColor(obj) {
+    var color = roomLabelProperty(obj, "labelBgColor");
+    return color == null ? null : String(color).trim();
+}
+
 function appendRoomLabel(g, obj) {
     var label = roomLabelText(obj);
     if (!label || roomLabelHidden(obj)) return;
@@ -173,17 +204,22 @@ function appendRoomLabel(g, obj) {
     var pad = 4;
     var offsetX = roomLabelOffset(obj, "x");
     var offsetY = roomLabelOffset(obj, "y");
+    var fontSize = roomLabelFontSize(obj) || defaultLabelFontSize;
+    var labelColor = roomLabelColor(obj) || defaultLabelColor;
+    var labelBgColor = roomLabelBgColor(obj) || defaultLabelBgColor;
     var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("class", "room-label-group");
     group.setAttribute("pointer-events", "none");
 
     var bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     bg.setAttribute("class", "room-label-bg");
+    bg.setAttribute("style", "fill:" + labelBgColor);
 
     var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
     text.setAttribute("class", "room-label");
     text.setAttribute("x", toDisplayX(tl.x + pad + offsetX));
-    text.setAttribute("y", toDisplayY(tl.y + pad + 13 + offsetY));
+    text.setAttribute("y", toDisplayY(tl.y + pad + fontSize + 1 + offsetY));
+    text.setAttribute("style", "fill:" + labelColor + ";font-size:" + fontSize + "px");
     text.textContent = label;
 
     group.appendChild(bg);
@@ -446,10 +482,6 @@ function nearestOnGridForRoom(g, aimMapX, aimMapY, mapBounds) {
 var floorImgUrl = null;
 var tiledMapData = null;
 
-function isFileProtocol() {
-    return window.location.protocol === "file:";
-}
-
 function revokeFloorImgUrl() {
     if (floorImgUrl && floorImgUrl.indexOf("blob:") === 0) {
         URL.revokeObjectURL(floorImgUrl);
@@ -708,34 +740,6 @@ function loadMapJsonText(text) {
     onMapReady();
 }
 
-function loadTiledMapFromScript() {
-    if (window.__FLOOR_PLAN_DATA__ && validateTiledMap(window.__FLOOR_PLAN_DATA__)) {
-        tiledMapData = window.__FLOOR_PLAN_DATA__;
-        onMapReady();
-        return;
-    }
-    var existing = document.getElementById("floor-plan-data-script");
-    if (existing) existing.parentNode.removeChild(existing);
-
-    var script = document.createElement("script");
-    script.id = "floor-plan-data-script";
-    script.src = window.WAYFINDER_ASSETS.dataJs;
-    script.onload = function () {
-        if (window.__FLOOR_PLAN_DATA__ && validateTiledMap(window.__FLOOR_PLAN_DATA__)) {
-            tiledMapData = window.__FLOOR_PLAN_DATA__;
-            onMapReady();
-        } else {
-            setStatus("floor-plan.data.js did not define window.__FLOOR_PLAN_DATA__.", true);
-            showFileFallback();
-        }
-    };
-    script.onerror = function () {
-        setStatus("Could not load map data script.", true);
-        showFileFallback();
-    };
-    document.head.appendChild(script);
-}
-
 function boot() {
     var jsonInput = document.getElementById("json-file");
     if (jsonInput) {
@@ -764,12 +768,6 @@ function boot() {
             }
             applyPickedImageFile(f);
         });
-    }
-
-    if (isFileProtocol()) {
-        setStatus("Loading map from floor-plan.data.js…", false);
-        loadTiledMapFromScript();
-        return;
     }
 
     fetchTiledJson()

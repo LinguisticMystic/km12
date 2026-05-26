@@ -74,14 +74,8 @@
                 fill: rgba(0, 120, 140, 0.42);
             }
 
-            .wayfinder .room-label-bg {
-                fill: #e67e22;
-            }
-
             .wayfinder .room-label {
-                fill: #fff;
                 font-family: system-ui, -apple-system, sans-serif;
-                font-size: 12px;
                 font-weight: 700;
                 pointer-events: none;
                 user-select: none;

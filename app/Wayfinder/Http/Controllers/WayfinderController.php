@@ -15,7 +15,6 @@ class WayfinderController extends Controller
             'mapAssets' => [
                 'json' => $base.'/floor-plan.json',
                 'png' => $base.'/'.config('wayfinder.floor_plan_image'),
-                'dataJs' => $base.'/floor-plan.data.js',
             ],
             'scriptUrl' => $base.'/wayfinder.js',
         ]);

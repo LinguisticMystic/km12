@@ -364,13 +364,28 @@
                 {
                  "height":13,
                  "id":24,
-                 "name":"WC-1",
+                 "name":"WC¹",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"hideLabel",
                          "type":"bool",
-                         "value":true
+                         "value":false
+                        },
+                        {
+                         "name":"labelColor",
+                         "type":"color",
+                         "value":"#000000"
+                        },
+                        {
+                          "name":"labelBgColor",
+                          "type":"color",
+                          "value":"#90D5FF"
+                        },
+                        {
+                         "name":"labelFontSize",
+                         "type":"float",
+                         "value":10
                         }],
                  "rotation":0,
                  "type":"",
@@ -449,13 +464,28 @@
                 {
                  "height":29.625,
                  "id":78,
-                 "name":"WC-2",
+                 "name":"WC²",
                  "opacity":1,
                  "properties":[
                         {
                          "name":"hideLabel",
                          "type":"bool",
-                         "value":true
+                         "value":false
+                        },
+                        {
+                         "name":"labelColor",
+                         "type":"color",
+                         "value":"#000000"
+                        },
+                        {
+                          "name":"labelBgColor",
+                          "type":"color",
+                          "value":"#90D5FF"
+                        },
+                        {
+                         "name":"labelFontSize",
+                         "type":"float",
+                         "value":10
                         }],
                  "rotation":0,
                  "type":"",
