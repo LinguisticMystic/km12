@@ -122,6 +122,12 @@
                  "id":8,
                  "name":"Hyper Centrs",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelOffsetX",
+                         "type":"float",
+                         "value":40
+                        }],
                  "polygon":[
                         {
                          "x":17.9576,
