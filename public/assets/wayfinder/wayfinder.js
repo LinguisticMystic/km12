@@ -392,30 +392,6 @@ function findStartObject(map) {
     return null;
 }
 
-/** Default “you are here” when no start object — top-center of Paths-layer corridors. */
-function entryPointFromPaths(map) {
-    var paths = layerByName(map, "Paths");
-    if (!paths || !paths.objects || !paths.objects.length) return null;
-
-    var minX = Infinity;
-    var minY = Infinity;
-    var maxX = -Infinity;
-    var found = false;
-
-    paths.objects.forEach(function (obj) {
-        if (!obj.visible || obj.width <= 0 || obj.height <= 0) return;
-        var nm = String(obj.name || "").toLowerCase();
-        if (nm === "start" || nm === "entrance" || nm === "entry") return;
-        found = true;
-        minX = Math.min(minX, obj.x);
-        minY = Math.min(minY, obj.y);
-        maxX = Math.max(maxX, obj.x + obj.width);
-    });
-
-    if (!found) return null;
-    return { x: (minX + maxX) / 2, y: minY + pathCell };
-}
-
 function buildGridFromTiledMap(map, skipLayout) {
     if (!skipLayout) {
         applyMapDimensions(map);
@@ -425,12 +401,8 @@ function buildGridFromTiledMap(map, skipLayout) {
     }
 
     var startObj = findStartObject(map);
-    if (startObj) {
-        startPx = startObj;
-    } else {
-        var pathEntry = entryPointFromPaths(map);
-        if (pathEntry) startPx = pathEntry;
-    }
+    if (startObj) startPx = startObj;
+    /* else keep startPx from applyMapDimensions (building entrance at bottom) */
 
     var raw = buildRawWalkFromPaths(map);
 
