@@ -27,6 +27,12 @@ return [
             'json' => '2nd-floor.json',
             'image' => '2nd-floor.jpg',
         ],
+        [
+            'id' => '3',
+            'label' => '3rd floor',
+            'json' => '3rd-floor.json',
+            'image' => '3rd-floor.jpg',
+        ],
     ],
 
 ];

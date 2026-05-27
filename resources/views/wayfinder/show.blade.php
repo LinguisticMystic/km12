@@ -167,8 +167,18 @@
                 gap: 0.5rem;
             }
 
+            .wayfinder #floor-tabs {
+                padding-bottom: 0.75rem;
+                margin-bottom: 0.75rem;
+                border-bottom: 1px solid #e3e3e0;
+            }
+
+            .dark .wayfinder #floor-tabs {
+                border-bottom-color: #3e3e3a;
+            }
+
             .wayfinder #room-list-items {
-                margin-top: 0.75rem;
+                margin-top: 0;
             }
 
             .wayfinder #room-list-items:empty {
