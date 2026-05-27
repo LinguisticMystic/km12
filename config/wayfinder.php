@@ -18,7 +18,7 @@ return [
         [
             'id' => '1',
             'label' => '1st floor',
-            'json' => 'floor-plan.json',
+            'json' => '1st-floor.json',
             'image' => '1st-floor.jpg',
         ],
         [

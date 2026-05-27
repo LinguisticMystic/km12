@@ -11,7 +11,7 @@ var refW = 793;
 var refH = 1123;
 var displayW = 595;
 var displayH = 842;
-/** Locked from the first floor image so tab switches keep the same box size. */
+/** Display box size for the active floor (matches loaded image when possible). */
 var layoutW = 0;
 var layoutH = 0;
 var scaleX = displayW / refW;
@@ -98,14 +98,12 @@ function toMapY(displayY) {
     return displayY / scaleY;
 }
 
-function lockLayoutSize(w, h) {
+function setLayoutSize(w, h) {
     if (!w || !h) return;
-    if (!layoutW) {
-        layoutW = w;
-        layoutH = h;
-    }
-    displayW = layoutW;
-    displayH = layoutH;
+    layoutW = w;
+    layoutH = h;
+    displayW = w;
+    displayH = h;
 }
 
 function applyDisplayLayout() {
@@ -126,12 +124,24 @@ function applyDisplayLayout() {
     }
 }
 
+/** Map Tiled object coords (refW×refH) to the loaded floor image pixels. */
+function reconcileLayoutWithImage(img) {
+    displayW = refW;
+    displayH = refH;
+    if (img && img.naturalWidth > 0 && img.naturalHeight > 0) {
+        displayW = img.naturalWidth;
+        displayH = img.naturalHeight;
+    }
+    setLayoutSize(displayW, displayH);
+    updateCoordScale();
+}
+
 /** Match overlay to the loaded floor image; objects use Tiled imagelayer pixel space. */
 function syncDisplayScale(img) {
-    if (img && img.naturalWidth > 0 && img.naturalHeight > 0) {
-        lockLayoutSize(img.naturalWidth, img.naturalHeight);
+    if (tiledMapData) {
+        applyMapDimensions(tiledMapData);
     }
-    updateCoordScale();
+    reconcileLayoutWithImage(img);
     applyDisplayLayout();
     if (tiledMapData) expandRoomsOverlay(tiledMapData);
 }
@@ -304,8 +314,6 @@ function applyMapDimensions(map) {
         refH = ref.h;
     }
     updatePathGridSize();
-    updateCoordScale();
-    applyDisplayLayout();
 
     /* Entrance in imagelayer pixel space (same relative spot as old 595×842 prototype). */
     startPx = { x: (112.5 / 595) * refW, y: (757.5 / 842) * refH };
@@ -384,9 +392,13 @@ function findStartObject(map) {
     return null;
 }
 
-function buildGridFromTiledMap(map) {
-    applyMapDimensions(map);
-    expandRoomsOverlay(map);
+function buildGridFromTiledMap(map, skipLayout) {
+    if (!skipLayout) {
+        applyMapDimensions(map);
+        reconcileLayoutWithImage(document.getElementById("floor-img"));
+        applyDisplayLayout();
+        expandRoomsOverlay(map);
+    }
 
     var startObj = findStartObject(map);
     if (startObj) startPx = startObj;
@@ -689,7 +701,7 @@ function initNavigation() {
 
     var g;
     try {
-        g = buildGridFromTiledMap(tiledMapData);
+        g = buildGridFromTiledMap(tiledMapData, true);
     } catch (e) {
         console.error(e);
         setStatus("Could not build grid from Tiled data: " + (e.message || String(e)), true);
