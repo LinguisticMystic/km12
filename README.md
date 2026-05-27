@@ -55,6 +55,7 @@ Firmware lives under `firmware/`:
 | Path | Use |
 |------|-----|
 | `firmware/km12_door_opener/km12_door_opener.ino` | **Flash this** — KM12 website API |
+| `firmware/km12_door_opener+legacy/km12_door_opener+legacy.ino` | KM12 API + Telegram (transition / dual control) |
 | `firmware/legacy/virinatajs_1.81/virinatajs_1.81.ino` | Original Telegram bot (reference only) |
 
 `km12_door_opener.ino` is your `virinatajs_1.81.ino` with the Telegram bot swapped for the KM12 website API. Everything else (pins, relays, timing, button, `handleUpdates` / `loop` structure) is unchanged.
@@ -74,9 +75,9 @@ For the legacy sketch, copy `secrets.h.example` in that folder instead (needs `B
 
 | Define | Used by |
 |--------|---------|
-| `WIFI_SSID`, `WIFI_PASSWORD` | Both sketches |
-| `SERVER_URL`, `API_TOKEN` | `km12_door_opener.ino` only |
-| `BOT_TOKEN`, `GROUP_CHAT_ID` | `virinatajs_1.81.ino` only |
+| `WIFI_SSID`, `WIFI_PASSWORD` | All sketches |
+| `SERVER_URL`, `API_TOKEN` | `km12_door_opener.ino`, `km12_door_opener+legacy.ino` |
+| `BOT_TOKEN`, `GROUP_CHAT_ID` | `virinatajs_1.81.ino`, `km12_door_opener+legacy.ino` |
 
 If this repo was ever pushed with real credentials in the `.ino` files, rotate Wi‑Fi password, Telegram bot token, and `DOOR_OPENER_ARDUINO_TOKEN`.
 
