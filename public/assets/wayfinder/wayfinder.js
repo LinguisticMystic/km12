@@ -40,6 +40,24 @@ function setStatus(msg, isErr) {
     el.style.visibility = msg ? "visible" : "hidden";
 }
 
+function setMapImageLoading(loading) {
+    var loader = document.getElementById("map-loader");
+    if (loader) {
+        loader.classList.toggle("is-hidden", !loading);
+    }
+}
+
+function setMapImageReady() {
+    var img = document.getElementById("floor-img");
+    var loader = document.getElementById("map-loader");
+    if (loader) {
+        loader.classList.add("is-hidden");
+    }
+    if (img) {
+        img.classList.add("is-ready");
+    }
+}
+
 function layerByName(map, name) {
     var layers = map.layers || [];
     for (var i = 0; i < layers.length; i++) {
@@ -486,6 +504,9 @@ function nearestOnGridForRoom(g, aimMapX, aimMapY, mapBounds) {
 
 var tiledMapData = null;
 var currentFloor = null;
+var floorImageCache = {};
+var floorImagesLoaded = {};
+var floorJsonCache = {};
 
 function getFloors() {
     var assets = window.WAYFINDER_ASSETS || {};
@@ -547,22 +568,104 @@ function fetchFloorJson(url) {
         });
 }
 
+function isImageUrlMatch(img, imageUrl) {
+    if (!img || !imageUrl) return false;
+    try {
+        return new URL(imageUrl, window.location.href).href === new URL(img.src, window.location.href).href;
+    } catch (e) {
+        return img.src === imageUrl;
+    }
+}
+
+function isFloorImageReady(imageUrl) {
+    return !!floorImagesLoaded[imageUrl];
+}
+
+function ensureFloorImage(imageUrl) {
+    if (floorImageCache[imageUrl]) {
+        return floorImageCache[imageUrl];
+    }
+    floorImageCache[imageUrl] = new Promise(function (resolve, reject) {
+        var preload = new Image();
+        function done() {
+            floorImagesLoaded[imageUrl] = true;
+            resolve(preload);
+        }
+        function fail() {
+            delete floorImageCache[imageUrl];
+            reject(new Error("image load failed"));
+        }
+        preload.onload = done;
+        preload.onerror = fail;
+        preload.src = imageUrl;
+        if (preload.complete && preload.naturalWidth) {
+            done();
+        }
+    });
+    return floorImageCache[imageUrl];
+}
+
+function getFloorJson(url) {
+    if (Object.prototype.hasOwnProperty.call(floorJsonCache, url)) {
+        return floorJsonCache[url];
+    }
+    floorJsonCache[url] = fetchFloorJson(url);
+    return floorJsonCache[url];
+}
+
+function prefetchAllFloors() {
+    getFloors().forEach(function (floor) {
+        ensureFloorImage(floor.image);
+        getFloorJson(floor.json);
+    });
+}
+
+function applyFloorImageToDom(imageUrl) {
+    var img = document.getElementById("floor-img");
+    if (!img) return;
+    if (!isImageUrlMatch(img, imageUrl)) {
+        img.src = imageUrl;
+    }
+    setMapImageReady();
+}
+
 function switchFloor(floor) {
     if (!floor) return;
     if (currentFloor && currentFloor.id === floor.id) return;
+
+    var floorId = floor.id;
+    var imageUrl = floor.image;
+    var jsonUrl = floor.json;
 
     currentFloor = floor;
     setActiveFloorTab(floor.id);
     tiledMapData = null;
     clearMapState();
 
-    fetchFloorJson(floor.json).then(function (map) {
+    if (!isFloorImageReady(imageUrl)) {
+        setMapImageLoading(true);
+    }
+
+    ensureFloorImage(imageUrl)
+        .then(function () {
+            if (!currentFloor || currentFloor.id !== floorId) return;
+            applyFloorImageToDom(imageUrl);
+            onFloorImageReady();
+        })
+        .catch(function () {
+            if (!currentFloor || currentFloor.id !== floorId) return;
+            setMapImageLoading(false);
+            setStatus("Could not load floor plan image.", true);
+        });
+
+    getFloorJson(jsonUrl).then(function (map) {
+        if (!currentFloor || currentFloor.id !== floorId) return;
         if (map && validateTiledMap(map, true)) {
             tiledMapData = map;
         } else {
             tiledMapData = null;
         }
-        loadCurrentFloorImage(floor.image);
+        onFloorImageReady();
     });
 }
 
@@ -736,28 +839,6 @@ function wireClicks() {
     });
 }
 
-function loadCurrentFloorImage(imageUrl) {
-    var img = document.getElementById("floor-img");
-    if (!img) return;
-    if (img.src === imageUrl && img.complete && img.naturalWidth) {
-        onFloorImageReady();
-        return;
-    }
-    var preload = new Image();
-    preload.onload = function () {
-        preload.onload = null;
-        preload.onerror = null;
-        img.src = imageUrl;
-        onFloorImageReady();
-    };
-    preload.onerror = function () {
-        preload.onload = null;
-        preload.onerror = null;
-        setStatus("Could not load floor plan image.", true);
-    };
-    preload.src = imageUrl;
-}
-
 function validateTiledMap(map, silent) {
     if (!map || !map.width || !map.height || !map.layers) {
         if (!silent) setStatus("Not a valid Tiled map export.", true);
@@ -773,6 +854,7 @@ function boot() {
         setStatus("No floors configured.", true);
         return;
     }
+    prefetchAllFloors();
     switchFloor(floors[0]);
 }
 

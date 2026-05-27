@@ -31,6 +31,52 @@
                 height: 100%;
                 object-fit: fill;
                 display: block;
+                visibility: hidden;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+
+            .wayfinder #map-container img.is-ready {
+                visibility: visible;
+                opacity: 1;
+            }
+
+            .wayfinder #map-loader {
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f5f5f4;
+            }
+
+            .wayfinder #map-loader.is-hidden {
+                display: none;
+            }
+
+            .dark .wayfinder #map-loader {
+                background: #161615;
+            }
+
+            .wayfinder .map-loader-spinner {
+                width: 2.5rem;
+                height: 2.5rem;
+                border: 3px solid #e3e3e0;
+                border-top-color: #e67e22;
+                border-radius: 50%;
+                animation: wayfinder-spin 0.7s linear infinite;
+            }
+
+            .dark .wayfinder .map-loader-spinner {
+                border-color: #3e3e3a;
+                border-top-color: #e67e22;
+            }
+
+            @keyframes wayfinder-spin {
+                to {
+                    transform: rotate(360deg);
+                }
             }
 
             .wayfinder #map-container svg.overlay {
@@ -179,7 +225,10 @@
         <p id="grid-status" style="visibility: hidden" aria-live="polite"></p>
 
         <div id="map-container">
-            <img id="floor-img" alt="Floor plan" width="595" height="842" />
+            <div id="map-loader" role="status" aria-live="polite" aria-label="Loading floor plan">
+                <div class="map-loader-spinner" aria-hidden="true"></div>
+            </div>
+            <img id="floor-img" alt="Floor plan" width="595" height="842" decoding="async" />
             <svg class="overlay" id="floor-plan" viewBox="0 0 595 842" preserveAspectRatio="none">
                 <polyline id="path-line" points="" />
                 <g id="rooms-layer"></g>
