@@ -33,6 +33,12 @@ return [
             'json' => '3rd-floor.json',
             'image' => '3rd-floor.jpg',
         ],
+        [
+            'id' => '4',
+            'label' => '4th floor',
+            'json' => '4th-floor.json',
+            'image' => '4th-floor.jpg',
+        ],
     ],
 
 ];

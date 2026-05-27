@@ -315,8 +315,13 @@ function applyMapDimensions(map) {
     }
     updatePathGridSize();
 
-    /* Entrance in imagelayer pixel space (same relative spot as old 595×842 prototype). */
-    startPx = { x: (112.5 / 595) * refW, y: (757.5 / 842) * refH };
+    var startObj = findStartObject(map);
+    if (startObj) {
+        startPx = startObj;
+    } else {
+        /* Entrance in imagelayer pixel space (same relative spot as old 595×842 prototype). */
+        startPx = { x: (112.5 / 595) * refW, y: (757.5 / 842) * refH };
+    }
 }
 
 /** Walk mesh: only grid cells that intersect a Paths-layer rectangle (no dilation). */
@@ -384,12 +389,29 @@ function findStartObject(map) {
             var o = L.objects[oi];
             var nm = String(o.name || "").toLowerCase();
             if (nm === "start" || nm === "entrance" || nm === "entry") {
-                if (o.point) return { x: o.x, y: o.y };
-                if (o.width > 0 && o.height > 0) return { x: o.x + o.width / 2, y: o.y + o.height / 2 };
+                if (o.point || (!o.polygon && !o.width && !o.height)) {
+                    return { x: o.x, y: o.y };
+                }
+                if (o.width > 0 && o.height > 0) {
+                    return { x: o.x + o.width / 2, y: o.y + o.height / 2 };
+                }
             }
         }
     }
     return null;
+}
+
+function updateEntranceMarker(snapToGrid) {
+    var marker = document.getElementById("entrance-marker");
+    if (!marker) return;
+    var px = startPx.x;
+    var py = startPx.y;
+    if (snapToGrid) {
+        px = startX * pathCell + pathCell / 2;
+        py = startY * pathCell + pathCell / 2;
+    }
+    marker.setAttribute("cx", toDisplayX(px));
+    marker.setAttribute("cy", toDisplayY(py));
 }
 
 function buildGridFromTiledMap(map, skipLayout) {
@@ -413,6 +435,7 @@ function buildGridFromTiledMap(map, skipLayout) {
     var startCell = nearestWalkable(raw, ix, iy);
     if (!startCell) {
         setStatus("Paths layer produced no walkable tiles (or map is empty).", true);
+        updateEntranceMarker(false);
         return null;
     }
     startX = startCell.x;
@@ -451,11 +474,7 @@ function buildGridFromTiledMap(map, skipLayout) {
         }
     }
 
-    var marker = document.getElementById("entrance-marker");
-    if (marker) {
-        marker.setAttribute("cx", toDisplayX(startX * pathCell + pathCell / 2));
-        marker.setAttribute("cy", toDisplayY(startY * pathCell + pathCell / 2));
-    }
+    updateEntranceMarker(true);
 
     return g;
 }
@@ -707,7 +726,10 @@ function initNavigation() {
         setStatus("Could not build grid from Tiled data: " + (e.message || String(e)), true);
         return;
     }
-    if (!g) return;
+    if (!g) {
+        buildRoomList(tiledMapData);
+        return;
+    }
 
     grid = g;
     var walkCount = 0;
