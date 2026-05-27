@@ -122,55 +122,37 @@
                  "id":8,
                  "name":"Hyper Centrs",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"labelOffsetX",
-                         "type":"float",
-                         "value":40
-                        }],
                  "polygon":[
                         {
-                         "x":17.957608864778,
+                         "x":17.9576,
                          "y":0
                         }, 
                         {
-                         "x":17.9743812101221,
-                         "y":44.3321321538601
+                         "x":17.9744,
+                         "y":44.3321
                         }, 
                         {
-                         "x":-22.4254894105079,
-                         "y":44.2453732828924
+                         "x":-22.4255,
+                         "y":44.2454
                         }, 
                         {
-                         "x":-22.5572583795192,
-                         "y":121.351064516129
+                         "x":-22.5573,
+                         "y":121.351
                         }, 
                         {
-                         "x":115.027002336746,
+                         "x":115.027,
                          "y":121.5
                         }, 
                         {
-                         "x":115.290308287147,
-                         "y":0.046640322580634
+                         "x":115.29,
+                         "y":0.0466403
                         }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":326.163358379519,
+                 "x":326.163,
                  "y":977.25
-                },
-                {
-                 "height":0,
-                 "id":91,
-                 "name":"start",
-                 "point":true,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":324,
-                 "y":1000
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -182,7 +164,31 @@
          "draworder":"topdown",
          "id":5,
          "name":"Paths",
-         "objects":[],
+         "objects":[
+                {
+                 "height":43,
+                 "id":91,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":3,
+                 "x":322.333333333333,
+                 "y":1012
+                },
+                {
+                 "height":0,
+                 "id":92,
+                 "name":"start",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":323.5,
+                 "y":1018
+                }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -190,7 +196,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":92,
+ "nextobjectid":93,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

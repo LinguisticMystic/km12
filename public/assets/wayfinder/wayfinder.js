@@ -315,13 +315,8 @@ function applyMapDimensions(map) {
     }
     updatePathGridSize();
 
-    var startObj = findStartObject(map);
-    if (startObj) {
-        startPx = startObj;
-    } else {
-        /* Entrance in imagelayer pixel space (same relative spot as old 595×842 prototype). */
-        startPx = { x: (112.5 / 595) * refW, y: (757.5 / 842) * refH };
-    }
+    /* Entrance in imagelayer pixel space (same relative spot as old 595×842 prototype). */
+    startPx = { x: (112.5 / 595) * refW, y: (757.5 / 842) * refH };
 }
 
 /** Walk mesh: only grid cells that intersect a Paths-layer rectangle (no dilation). */
@@ -389,29 +384,36 @@ function findStartObject(map) {
             var o = L.objects[oi];
             var nm = String(o.name || "").toLowerCase();
             if (nm === "start" || nm === "entrance" || nm === "entry") {
-                if (o.point || (!o.polygon && !o.width && !o.height)) {
-                    return { x: o.x, y: o.y };
-                }
-                if (o.width > 0 && o.height > 0) {
-                    return { x: o.x + o.width / 2, y: o.y + o.height / 2 };
-                }
+                if (o.point) return { x: o.x, y: o.y };
+                if (o.width > 0 && o.height > 0) return { x: o.x + o.width / 2, y: o.y + o.height / 2 };
             }
         }
     }
     return null;
 }
 
-function updateEntranceMarker(snapToGrid) {
-    var marker = document.getElementById("entrance-marker");
-    if (!marker) return;
-    var px = startPx.x;
-    var py = startPx.y;
-    if (snapToGrid) {
-        px = startX * pathCell + pathCell / 2;
-        py = startY * pathCell + pathCell / 2;
-    }
-    marker.setAttribute("cx", toDisplayX(px));
-    marker.setAttribute("cy", toDisplayY(py));
+/** Default “you are here” when no start object — top-center of Paths-layer corridors. */
+function entryPointFromPaths(map) {
+    var paths = layerByName(map, "Paths");
+    if (!paths || !paths.objects || !paths.objects.length) return null;
+
+    var minX = Infinity;
+    var minY = Infinity;
+    var maxX = -Infinity;
+    var found = false;
+
+    paths.objects.forEach(function (obj) {
+        if (!obj.visible || obj.width <= 0 || obj.height <= 0) return;
+        var nm = String(obj.name || "").toLowerCase();
+        if (nm === "start" || nm === "entrance" || nm === "entry") return;
+        found = true;
+        minX = Math.min(minX, obj.x);
+        minY = Math.min(minY, obj.y);
+        maxX = Math.max(maxX, obj.x + obj.width);
+    });
+
+    if (!found) return null;
+    return { x: (minX + maxX) / 2, y: minY + pathCell };
 }
 
 function buildGridFromTiledMap(map, skipLayout) {
@@ -423,7 +425,12 @@ function buildGridFromTiledMap(map, skipLayout) {
     }
 
     var startObj = findStartObject(map);
-    if (startObj) startPx = startObj;
+    if (startObj) {
+        startPx = startObj;
+    } else {
+        var pathEntry = entryPointFromPaths(map);
+        if (pathEntry) startPx = pathEntry;
+    }
 
     var raw = buildRawWalkFromPaths(map);
 
@@ -435,7 +442,6 @@ function buildGridFromTiledMap(map, skipLayout) {
     var startCell = nearestWalkable(raw, ix, iy);
     if (!startCell) {
         setStatus("Paths layer produced no walkable tiles (or map is empty).", true);
-        updateEntranceMarker(false);
         return null;
     }
     startX = startCell.x;
@@ -474,7 +480,11 @@ function buildGridFromTiledMap(map, skipLayout) {
         }
     }
 
-    updateEntranceMarker(true);
+    var marker = document.getElementById("entrance-marker");
+    if (marker) {
+        marker.setAttribute("cx", toDisplayX(startX * pathCell + pathCell / 2));
+        marker.setAttribute("cy", toDisplayY(startY * pathCell + pathCell / 2));
+    }
 
     return g;
 }
@@ -726,10 +736,7 @@ function initNavigation() {
         setStatus("Could not build grid from Tiled data: " + (e.message || String(e)), true);
         return;
     }
-    if (!g) {
-        buildRoomList(tiledMapData);
-        return;
-    }
+    if (!g) return;
 
     grid = g;
     var walkCount = 0;
@@ -821,6 +828,10 @@ function navigateToRoomTrigger(roomEl, aimMapX, aimMapY) {
 
     gridBackup.setWalkableAt(startX, startY, true);
     var path = finder.findPath(startX, startY, snap.x, snap.y, gridBackup);
+
+    if (path.length === 0 && snap.x === startX && snap.y === startY) {
+        path = [[startX, startY]];
+    }
 
     if (path.length > 0) {
         var pointsString = "";
