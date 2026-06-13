@@ -122,7 +122,7 @@
                 {
                  "height":73.5,
                  "id":1,
-                 "name":"K1-4",
+                 "name":"Izstāžu zāle",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -134,7 +134,7 @@
                 {
                  "height":124.5,
                  "id":4,
-                 "name":"K1-3",
+                 "name":"KST galerija",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -160,6 +160,12 @@
                  "id":7,
                  "name":"S1-1",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"hideRoom",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -197,6 +203,12 @@
                          "x":167,
                          "y":0.5
                         }],
+                 "properties":[
+                        {
+                         "name":"hideRoom",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -207,7 +219,7 @@
                 {
                  "height":54.5,
                  "id":9,
-                 "name":"S1-3",
+                 "name":"Vakanta",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -219,8 +231,14 @@
                 {
                  "height":120.5,
                  "id":10,
-                 "name":"S1-4",
+                 "name":"Vakanta",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelOffsetX",
+                         "type":"float",
+                         "value":44
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -243,7 +261,7 @@
                 {
                  "height":33,
                  "id":12,
-                 "name":"N1-12",
+                 "name":"Vakanta",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -255,7 +273,7 @@
                 {
                  "height":28,
                  "id":13,
-                 "name":"N1-13",
+                 "name":"Vakanta",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -267,7 +285,7 @@
                 {
                  "height":103.5,
                  "id":18,
-                 "name":"N1-5",
+                 "name":"Foajē",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -291,7 +309,7 @@
                 {
                  "height":168,
                  "id":20,
-                 "name":"N1-1",
+                 "name":"Bruntor¹",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -303,7 +321,7 @@
                 {
                  "height":168.666666666667,
                  "id":21,
-                 "name":"N1-2",
+                 "name":"Bruntor²",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -315,7 +333,7 @@
                 {
                  "height":112,
                  "id":22,
-                 "name":"N1-4",
+                 "name":"Bruntor⁴",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -327,7 +345,7 @@
                 {
                  "height":0,
                  "id":23,
-                 "name":"N1-3",
+                 "name":"Bruntor³",
                  "opacity":1,
                  "polygon":[
                         {
@@ -399,6 +417,12 @@
                  "id":25,
                  "name":"T1-2",
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"hideRoom",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -409,7 +433,7 @@
                 {
                  "height":27.5,
                  "id":26,
-                 "name":"T1-3",
+                 "name":"Muzeja dīgsts",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -421,7 +445,7 @@
                 {
                  "height":0,
                  "id":27,
-                 "name":"T1-1",
+                 "name":"Koprades telpa",
                  "opacity":1,
                  "properties":[
                         {
@@ -493,6 +517,18 @@
                  "width":20.75,
                  "x":312.125,
                  "y":323.625
+                }, 
+                {
+                 "height":42,
+                 "id":79,
+                 "name":"Vakanta",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":93,
+                 "x":634,
+                 "y":383
                 }],
          "opacity":1,
          "type":"objectgroup",

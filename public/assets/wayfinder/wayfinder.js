@@ -201,6 +201,17 @@ function roomLabelHidden(obj) {
     return false;
 }
 
+function roomHidden(obj) {
+    var props = obj.properties || [];
+    for (var i = 0; i < props.length; i++) {
+        if (props[i].name === "hideRoom") {
+            var v = props[i].value;
+            return v === true || v === "true" || v === 1;
+        }
+    }
+    return false;
+}
+
 function roomLabelProperty(obj, name) {
     var props = obj.properties || [];
     for (var i = 0; i < props.length; i++) {
@@ -277,6 +288,7 @@ function expandRoomsOverlay(map) {
     if (!rooms || !rooms.objects) return;
 
     rooms.objects.forEach(function (obj) {
+        if (roomHidden(obj)) return;
         var el = null;
         if (obj.polygon && obj.polygon.length >= 3) {
             el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
@@ -750,6 +762,7 @@ function buildRoomList(map) {
 
     var named = [];
     rooms.objects.forEach(function (obj) {
+        if (roomHidden(obj)) return;
         if (roomLabelText(obj)) named.push(obj);
     });
     named.sort(function (a, b) {
