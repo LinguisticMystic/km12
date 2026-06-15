@@ -102,14 +102,14 @@
         }, 
         {
          "id":3,
-         "image":"..\/..\/3rd-floor.jpg",
+         "image":"3rd-floor.jpg",
          "imageheight":1122,
          "imagewidth":793,
          "locked":true,
          "name":"Ref image",
          "opacity":1,
          "type":"imagelayer",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }, 
@@ -119,19 +119,19 @@
          "name":"Rooms",
          "objects":[
                 {
-                 "height":196,
+                 "height":196.625,
                  "id":4,
                  "name":"Ak Tu Zāle",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":112,
-                 "x":93,
-                 "y":730
+                 "width":111.516,
+                 "x":93.159,
+                 "y":729.167
                 }, 
                 {
-                 "height":23.6363636363636,
+                 "height":23.5,
                  "id":91,
                  "name":"WC",
                  "opacity":1,
@@ -154,9 +154,294 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":38.5454545454545,
-                 "x":131.272727272727,
-                 "y":651.090909090909
+                 "width":38.213,
+                 "x":131.499,
+                 "y":650.917
+                }, 
+                {
+                 "height":0,
+                 "id":94,
+                 "name":"Backstage",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelOffsetY",
+                         "type":"float",
+                         "value":36
+                        }],
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":100.961,
+                         "y":0.458
+                        }, 
+                        {
+                         "x":100.961,
+                         "y":-38.042
+                        }, 
+                        {
+                         "x":190.448,
+                         "y":-38.042
+                        }, 
+                        {
+                         "x":190.448,
+                         "y":73.333
+                        }, 
+                        {
+                         "x":0.459,
+                         "y":74.25
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":214.751,
+                 "y":933.167
+                }, 
+                {
+                 "height":72.875,
+                 "id":96,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":112.892,
+                 "x":92.701,
+                 "y":934.083
+                }, 
+                {
+                 "height":0,
+                 "id":97,
+                 "name":"Stallis",
+                 "opacity":1,
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":143.181,
+                         "y":-0.458
+                        }, 
+                        {
+                         "x":143.639,
+                         "y":103.125
+                        }, 
+                        {
+                         "x":126.201,
+                         "y":103.125
+                        }, 
+                        {
+                         "x":126.201,
+                         "y":121.917
+                        }, 
+                        {
+                         "x":0,
+                         "y":121.917
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":92.241,
+                 "y":469.333
+                }, 
+                {
+                 "height":0,
+                 "id":98,
+                 "name":"Bārs",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelOffsetX",
+                         "type":"float",
+                         "value":26
+                        }],
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":-0.125,
+                         "y":-16.958
+                        }, 
+                        {
+                         "x":22.028,
+                         "y":-16.958
+                        }, 
+                        {
+                         "x":22.028,
+                         "y":-37.583
+                        }, 
+                        {
+                         "x":70.672,
+                         "y":-37.583
+                        }, 
+                        {
+                         "x":70.797,
+                         "y":0
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":220.837,
+                 "y":591.25
+                }, 
+                {
+                 "height":0,
+                 "id":99,
+                 "name":"Vampīru vakariņas",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelOffsetX",
+                         "type":"float",
+                         "value":42
+                        }],
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":0,
+                         "y":-15.278
+                        }, 
+                        {
+                         "x":38.853,
+                         "y":-15.278
+                        }, 
+                        {
+                         "x":38.853,
+                         "y":-81.278
+                        }, 
+                        {
+                         "x":206.511,
+                         "y":-80.972
+                        }, 
+                        {
+                         "x":206.204,
+                         "y":-52.556
+                        }, 
+                        {
+                         "x":240.777,
+                         "y":-52.556
+                        }, 
+                        {
+                         "x":240.777,
+                         "y":-14.972
+                        }, 
+                        {
+                         "x":279.665,
+                         "y":-14.972
+                        }, 
+                        {
+                         "x":279.936,
+                         "y":20.549
+                        }, 
+                        {
+                         "x":268.924,
+                         "y":20.549
+                        }, 
+                        {
+                         "x":268.924,
+                         "y":41.25
+                        }, 
+                        {
+                         "x":51.398,
+                         "y":40.944
+                        }, 
+                        {
+                         "x":51.092,
+                         "y":0.306
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":242.612,
+                 "y":550.611
+                }, 
+                {
+                 "height":92.278,
+                 "id":100,
+                 "name":"Buduārs",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":125.427,
+                 "x":250.284,
+                 "y":361.167
+                }, 
+                {
+                 "height":93.194,
+                 "id":101,
+                 "name":"Meža mātes klēpis",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":240.776,
+                 "x":382.424,
+                 "y":360.861
+                }, 
+                {
+                 "height":0,
+                 "id":102,
+                 "name":"Reiva skapis",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelOffsetX",
+                         "type":"float",
+                         "value":8
+                        }],
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":132.167,
+                         "y":0
+                        }, 
+                        {
+                         "x":132.167,
+                         "y":121.917
+                        }, 
+                        {
+                         "x":7.648,
+                         "y":122.222
+                        }, 
+                        {
+                         "x":7.648,
+                         "y":101.444
+                        }, 
+                        {
+                         "x":-4.283,
+                         "y":101.444
+                        }, 
+                        {
+                         "x":-4.283,
+                         "y":66.917
+                        }, 
+                        {
+                         "x":0.306,
+                         "y":66.917
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":529.875,
+                 "y":469.639
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -170,40 +455,88 @@
          "name":"Paths",
          "objects":[
                 {
-                 "height":94.5,
+                 "height":418.167,
                  "id":32,
                  "name":"",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":2.66667,
-                 "x":107.333,
-                 "y":660.167
+                 "width":2.447,
+                 "x":109.519,
+                 "y":545.569
                 }, 
                 {
-                 "height":2.5,
+                 "height":2.292,
                  "id":61,
                  "name":"",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":28.5,
-                 "x":107.375,
-                 "y":660.125
+                 "width":26.158,
+                 "x":109.554,
+                 "y":659.198
                 }, 
                 {
-                 "height":2.5,
+                 "height":2.292,
                  "id":90,
                  "name":"",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":28.5,
-                 "x":107.625,
-                 "y":701.375
+                 "width":26.158,
+                 "x":109.784,
+                 "y":697.01
+                }, 
+                {
+                 "height":1.528,
+                 "id":103,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":452.487,
+                 "x":109.221,
+                 "y":545.493
+                }, 
+                {
+                 "height":26.395,
+                 "id":104,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":1.671,
+                 "x":309.063,
+                 "y":545.605
+                }, 
+                {
+                 "height":1.833,
+                 "id":105,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":17.021,
+                 "x":293.704,
+                 "y":570.167
+                }, 
+                {
+                 "height":3.208,
+                 "id":107,
+                 "name":"",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":130.789,
+                 "x":110.597,
+                 "y":960.194
                 },
                 {
                  "height":5,
@@ -219,7 +552,7 @@
                 },
                 {
                  "height":0,
-                 "id":94,
+                 "id":106,
                  "name":"start",
                  "opacity":1,
                  "point":true,
@@ -237,7 +570,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":95,
+ "nextobjectid":108,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

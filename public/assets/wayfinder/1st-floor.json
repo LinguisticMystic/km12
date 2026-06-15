@@ -219,7 +219,7 @@
                 {
                  "height":54.5,
                  "id":9,
-                 "name":"Vakanta",
+                 "name":"Vakanta¹",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -231,7 +231,7 @@
                 {
                  "height":120.5,
                  "id":10,
-                 "name":"Vakanta",
+                 "name":"Vakanta²",
                  "opacity":1,
                  "properties":[
                         {
@@ -261,7 +261,7 @@
                 {
                  "height":33,
                  "id":12,
-                 "name":"Vakanta",
+                 "name":"Vakanta³",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -273,7 +273,7 @@
                 {
                  "height":28,
                  "id":13,
-                 "name":"Vakanta",
+                 "name":"Vakanta⁴",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -521,7 +521,7 @@
                 {
                  "height":42,
                  "id":79,
-                 "name":"Vakanta",
+                 "name":"Vakanta⁵",
                  "opacity":1,
                  "rotation":0,
                  "type":"",

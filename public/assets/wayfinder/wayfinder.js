@@ -26,6 +26,8 @@ var finder = new PF.AStarFinder({
 var startPx = { x: 154, y: 928 };
 var startX = 12;
 var startY = 77;
+/** Grid-snapped entrances; multiple "start" points supported per floor. */
+var startPoints = [];
 
 function updatePathGridSize() {
     pathCols = Math.ceil(refW / pathCell);
@@ -345,6 +347,16 @@ function buildRawWalkFromPaths(map) {
 
     paths.objects.forEach(function (obj) {
         if (!obj.visible) return;
+        if (obj.polygon && obj.polygon.length >= 3) {
+            for (row = 0; row < pathRows; row++) {
+                for (col = 0; col < pathCols; col++) {
+                    var cx = col * pathCell + pathCell / 2;
+                    var cy = row * pathCell + pathCell / 2;
+                    if (pointInPolygon(cx, cy, obj)) raw[row][col] = true;
+                }
+            }
+            return;
+        }
         if (obj.width <= 0 || obj.height <= 0) return;
         var rx = obj.x;
         var ry = obj.y;
@@ -363,6 +375,28 @@ function rectIntersectsPathCell(rx, ry, rw, rh, col, row) {
     var tx = col * pathCell;
     var ty = row * pathCell;
     return rx < tx + pathCell && rx + rw > tx && ry < ty + pathCell && ry + rh > ty;
+}
+
+function pointInPolygon(mapX, mapY, obj) {
+    var poly = obj.polygon;
+    if (!poly || poly.length < 3) return false;
+    var ox = obj.x;
+    var oy = obj.y;
+    var inside = false;
+    var i;
+    var j = poly.length - 1;
+    for (i = 0; i < poly.length; i++) {
+        var xi = ox + poly[i].x;
+        var yi = oy + poly[i].y;
+        var xj = ox + poly[j].x;
+        var yj = oy + poly[j].y;
+        var intersect =
+            yi > mapY !== yj > mapY &&
+            mapX < ((xj - xi) * (mapY - yi)) / (yj - yi) + xi;
+        if (intersect) inside = !inside;
+        j = i;
+    }
+    return inside;
 }
 
 function nearestWalkable(raw, ix, iy) {
@@ -386,7 +420,8 @@ function nearestWalkable(raw, ix, iy) {
     return best;
 }
 
-function findStartObject(map) {
+function findStartObjects(map) {
+    var results = [];
     var layers = map.layers || [];
     var li;
     for (li = 0; li < layers.length; li++) {
@@ -396,12 +431,61 @@ function findStartObject(map) {
             var o = L.objects[oi];
             var nm = String(o.name || "").toLowerCase();
             if (nm === "start" || nm === "entrance" || nm === "entry") {
-                if (o.point) return { x: o.x, y: o.y };
-                if (o.width > 0 && o.height > 0) return { x: o.x + o.width / 2, y: o.y + o.height / 2 };
+                if (o.point) results.push({ x: o.x, y: o.y });
+                else if (o.width > 0 && o.height > 0) {
+                    results.push({ x: o.x + o.width / 2, y: o.y + o.height / 2 });
+                }
             }
         }
     }
-    return null;
+    return results;
+}
+
+function findStartObject(map) {
+    var all = findStartObjects(map);
+    return all.length ? all[0] : null;
+}
+
+function snapStartToGrid(raw, px, py) {
+    var ix = Math.floor(px / pathCell);
+    var iy = Math.floor(py / pathCell);
+    ix = Math.max(0, Math.min(pathCols - 1, ix));
+    iy = Math.max(0, Math.min(pathRows - 1, iy));
+    return nearestWalkable(raw, ix, iy);
+}
+
+function pickBestStartAndPath(grid, destX, destY) {
+    var candidates = startPoints.length
+        ? startPoints
+        : [{ x: startX, y: startY, px: startPx.x, py: startPx.y }];
+    var bestStart = candidates[0];
+    var bestPath = [];
+    var bestLen = Infinity;
+    var ci;
+    for (ci = 0; ci < candidates.length; ci++) {
+        var sp = candidates[ci];
+        var trialGrid = grid.clone();
+        trialGrid.setWalkableAt(sp.x, sp.y, true);
+        var trial = finder.findPath(sp.x, sp.y, destX, destY, trialGrid);
+        if (trial.length > 0 && trial.length < bestLen) {
+            bestStart = sp;
+            bestPath = trial;
+            bestLen = trial.length;
+        }
+    }
+    if (!bestPath.length) {
+        var fallbackGrid = grid.clone();
+        fallbackGrid.setWalkableAt(bestStart.x, bestStart.y, true);
+        bestPath = finder.findPath(bestStart.x, bestStart.y, destX, destY, fallbackGrid);
+    }
+    return { start: bestStart, path: bestPath };
+}
+
+function setEntranceMarkerAtCell(cellX, cellY) {
+    var marker = document.getElementById("entrance-marker");
+    if (!marker) return;
+    marker.setAttribute("cx", toDisplayX(cellX * pathCell + pathCell / 2));
+    marker.setAttribute("cy", toDisplayY(cellY * pathCell + pathCell / 2));
 }
 
 function buildGridFromTiledMap(map, skipLayout) {
@@ -412,29 +496,54 @@ function buildGridFromTiledMap(map, skipLayout) {
         expandRoomsOverlay(map);
     }
 
-    var startObj = findStartObject(map);
-    if (startObj) startPx = startObj;
+    var starts = findStartObjects(map);
+    if (starts.length) startPx = starts[0];
     /* else keep startPx from applyMapDimensions (building entrance at bottom) */
 
     var raw = buildRawWalkFromPaths(map);
 
-    var ix = Math.floor(startPx.x / pathCell);
-    var iy = Math.floor(startPx.y / pathCell);
-    ix = Math.max(0, Math.min(pathCols - 1, ix));
-    iy = Math.max(0, Math.min(pathRows - 1, iy));
-
-    var startCell = nearestWalkable(raw, ix, iy);
-    if (!startCell) {
-        setStatus("Paths layer produced no walkable tiles (or map is empty).", true);
-        return null;
-    }
-    startX = startCell.x;
-    startY = startCell.y;
-
+    startPoints = [];
     var seen = [];
-    for (var j = 0; j < pathRows; j++) seen[j] = [];
-    var q = [[startCell.x, startCell.y]];
-    seen[startCell.y][startCell.x] = true;
+    var q = [];
+    var j;
+    for (j = 0; j < pathRows; j++) seen[j] = [];
+
+    if (starts.length) {
+        var si;
+        for (si = 0; si < starts.length; si++) {
+            var cell = snapStartToGrid(raw, starts[si].x, starts[si].y);
+            if (!cell) continue;
+            if (!seen[cell.y][cell.x]) {
+                seen[cell.y][cell.x] = true;
+                q.push([cell.x, cell.y]);
+            }
+            startPoints.push({
+                x: cell.x,
+                y: cell.y,
+                px: starts[si].x,
+                py: starts[si].y
+            });
+        }
+    }
+
+    if (!q.length) {
+        var ix = Math.floor(startPx.x / pathCell);
+        var iy = Math.floor(startPx.y / pathCell);
+        ix = Math.max(0, Math.min(pathCols - 1, ix));
+        iy = Math.max(0, Math.min(pathRows - 1, iy));
+        var fallback = nearestWalkable(raw, ix, iy);
+        if (!fallback) {
+            setStatus("Paths layer produced no walkable tiles (or map is empty).", true);
+            return null;
+        }
+        seen[fallback.y][fallback.x] = true;
+        q.push([fallback.x, fallback.y]);
+        startPoints.push({ x: fallback.x, y: fallback.y, px: startPx.x, py: startPx.y });
+    }
+
+    startX = startPoints[0].x;
+    startY = startPoints[0].y;
+
     var head = 0;
     while (head < q.length) {
         var c = q[head++];
@@ -464,11 +573,7 @@ function buildGridFromTiledMap(map, skipLayout) {
         }
     }
 
-    var marker = document.getElementById("entrance-marker");
-    if (marker) {
-        marker.setAttribute("cx", toDisplayX(startX * pathCell + pathCell / 2));
-        marker.setAttribute("cy", toDisplayY(startY * pathCell + pathCell / 2));
-    }
+    setEntranceMarkerAtCell(startX, startY);
 
     return g;
 }
@@ -811,11 +916,13 @@ function navigateToRoomTrigger(roomEl, aimMapX, aimMapY) {
         return;
     }
 
-    gridBackup.setWalkableAt(startX, startY, true);
-    var path = finder.findPath(startX, startY, snap.x, snap.y, gridBackup);
+    var route = pickBestStartAndPath(gridBackup, snap.x, snap.y);
+    var chosenStart = route.start;
+    var path = route.path;
+    setEntranceMarkerAtCell(chosenStart.x, chosenStart.y);
 
-    if (path.length === 0 && snap.x === startX && snap.y === startY) {
-        path = [[startX, startY]];
+    if (path.length === 0 && snap.x === chosenStart.x && snap.y === chosenStart.y) {
+        path = [[chosenStart.x, chosenStart.y]];
     }
 
     if (path.length > 0) {
