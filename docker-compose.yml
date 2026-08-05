@@ -28,6 +28,9 @@ services:
     restart: unless-stopped
     ports:
       - "${HTTP_PORT:-8080}:80"
+    volumes:
+      # Uploads live on the app storage volume; nginx must serve them at /storage/*
+      - ./storage/app/public:/var/www/html/public/storage:ro
     depends_on:
       - app
     networks:

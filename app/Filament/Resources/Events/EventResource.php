@@ -71,7 +71,7 @@ class EventResource extends Resource
             ->columns([
                 ImageColumn::make('poster_path')
                     ->label('Poster')
-                    ->disk('public')
+                    ->getStateUsing(fn (Event $record): ?string => $record->posterUrl())
                     ->square(),
                 TextColumn::make('name')
                     ->searchable()

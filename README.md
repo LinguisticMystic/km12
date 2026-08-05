@@ -40,6 +40,8 @@ Laravel app with tools intended for members of the **KM12** community. Local dev
    - **Admin panel**: **`/admin/login`** (seeded admin from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`). Non-admin accounts cannot access the panel.
    - After `db:seed`, a non-admin test user is available: `test@example.com` / `password`.
 
+Event posters are stored under `storage/app/public/events` and served by nginx from `/storage/...` (the `web` service mounts that directory). After deploy, recreate containers so the mount applies (`./deploy` or `docker compose ... up -d`).
+
    Filament CSS/JS are copied into `public/` during the image build (`php artisan filament:assets`). After changing Filament version, rebuild: `docker compose up -d --build`.
 
 Useful: `docker compose logs -f`, `docker compose down` (add `-v` to drop MySQL data).

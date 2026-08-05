@@ -26,7 +26,8 @@ class Event extends Model
             return null;
         }
 
-        return Storage::disk('public')->url($this->poster_path);
+        // url() uses the current request host (or APP_URL), so /storage stays origin-correct.
+        return url(Storage::disk('public')->url($this->poster_path));
     }
 
     /**
