@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Events;
 use App\Filament\Resources\Events\Pages\CreateEvent;
 use App\Filament\Resources\Events\Pages\EditEvent;
 use App\Filament\Resources\Events\Pages\ListEvents;
+use App\Filament\Resources\Events\RelationManagers\ParticipantsRelationManager;
 use App\Models\Event;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -29,6 +30,10 @@ class EventResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     protected static ?string $navigationLabel = 'Events';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Events';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -103,7 +108,9 @@ class EventResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ParticipantsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

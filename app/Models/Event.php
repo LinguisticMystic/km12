@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['name', 'date', 'description', 'ticket_url', 'poster_path'])]
@@ -18,6 +21,60 @@ class Event extends Model
         return [
             'date' => 'datetime',
         ];
+    }
+
+    /**
+     * @return HasMany<EventParticipant, $this>
+     */
+    public function participants(): HasMany
+    {
+        return $this->hasMany(EventParticipant::class)->orderBy('sort_order')->orderBy('name');
+    }
+
+    /**
+     * @return HasManyThrough<ScheduleEntry, EventParticipant, $this>
+     */
+    public function scheduleEntries(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ScheduleEntry::class,
+            EventParticipant::class,
+            'event_id',
+            'event_participant_id',
+        )->orderBy('starts_at');
+    }
+
+    /**
+     * Schedule entries grouped by stage (stage sort_order, then chronological).
+     *
+     * @return Collection<int|string, Collection<int, ScheduleEntry>>
+     */
+    public function scheduleGroupedByStage(): Collection
+    {
+        if ($this->relationLoaded('participants')) {
+            $entries = $this->participants->flatMap(function (EventParticipant $participant) {
+                return $participant->scheduleEntries->map(function (ScheduleEntry $entry) use ($participant) {
+                    if (! $entry->relationLoaded('eventParticipant')) {
+                        $entry->setRelation('eventParticipant', $participant);
+                    }
+
+                    return $entry;
+                });
+            });
+        } else {
+            $entries = $this->scheduleEntries()->with(['stage', 'eventParticipant'])->get();
+        }
+
+        return $entries
+            ->sortBy(fn (ScheduleEntry $entry): int => $entry->starts_at?->getTimestamp() ?? 0)
+            ->groupBy(fn (ScheduleEntry $entry): int => (int) $entry->stage_id)
+            ->sortBy(function (Collection $group): string {
+                /** @var ScheduleEntry|null $first */
+                $first = $group->first();
+                $stage = $first?->stage;
+
+                return sprintf('%05d-%s', $stage?->sort_order ?? 99999, $stage?->name ?? '');
+            });
     }
 
     public function posterUrl(): ?string
