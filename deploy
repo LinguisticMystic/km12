@@ -2,3 +2,4 @@
 set -euo pipefail
 git pull
 docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build
+docker compose -f docker-compose.yml -f docker-compose.traefik.yml exec -T app php artisan migrate --force
