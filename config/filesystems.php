@@ -41,7 +41,8 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Relative so posters work regardless of APP_URL / port (e.g. :8000 vs :8080).
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

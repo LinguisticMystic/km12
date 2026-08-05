@@ -14,15 +14,15 @@
 
     <div class="mt-14 grid w-full max-w-lg grid-cols-2 gap-4 sm:gap-6">
         <a
-            href="{{ route('door-opener') }}"
+            href="{{ route('events.index') }}"
             class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
         >
             <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFC] text-[#1b1b18] transition group-hover:scale-105 sm:size-14 dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-7 sm:size-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m0 0h6m-6 0h6" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
                 </svg>
             </span>
-            <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Door opener</span>
+            <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Events</span>
         </a>
 
         <a
@@ -61,5 +61,7 @@
             </span>
             <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">About</span>
         </a>
+
+        {{-- TODO: Do not re-enable Door opener on the home page until the Arduino device is flashed with firmware that speaks the KM12 API (`firmware/km12_door_opener`). Until then the site API cannot open doors/gates in production. Routes under /door-opener remain for development. --}}
     </div>
 @endsection

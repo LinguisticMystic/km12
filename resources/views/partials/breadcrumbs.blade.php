@@ -1,8 +1,12 @@
 @php
+    $eventShow = request()->routeIs('events.show') ? request()->route('event') : null;
+
     $current = match (true) {
         request()->routeIs('door-opener') => 'Door opener',
         request()->routeIs('wayfinder') => 'Wayfinder',
         request()->routeIs('calendar') => 'Calendar',
+        request()->routeIs('events.index') => 'Events',
+        request()->routeIs('events.show') => $eventShow?->name ?? 'Event',
         request()->routeIs('about') => 'About',
         request()->routeIs('login') => 'Log in',
         default => null,
@@ -23,8 +27,19 @@
                     <span>Home</span>
                 </a>
             </li>
+            @if (request()->routeIs('events.show'))
+                <li class="text-[#c4c4c0] dark:text-[#5a5955]" aria-hidden="true">/</li>
+                <li>
+                    <a
+                        href="{{ route('events.index') }}"
+                        class="rounded-sm border border-transparent px-1 py-0.5 transition hover:border-[#19140035] hover:text-[#1b1b18] dark:hover:border-[#3E3E3A] dark:hover:text-[#EDEDEC]"
+                    >
+                        Events
+                    </a>
+                </li>
+            @endif
             <li class="text-[#c4c4c0] dark:text-[#5a5955]" aria-hidden="true">/</li>
-            <li class="font-medium text-[#1b1b18] dark:text-[#EDEDEC]" aria-current="page">{{ $current }}</li>
+            <li class="min-w-0 truncate font-medium text-[#1b1b18] dark:text-[#EDEDEC]" aria-current="page">{{ $current }}</li>
         </ol>
     </nav>
 @endif
