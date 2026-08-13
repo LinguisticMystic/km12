@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Events\RelationManagers;
 
+use App\Filament\Resources\Artists\ArtistResource;
 use App\Models\EventParticipant;
 use App\Models\Stage;
 use Filament\Actions\BulkActionGroup;
@@ -10,52 +11,41 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rules\Unique;
 
 class ParticipantsRelationManager extends RelationManager
 {
     protected static string $relationship = 'participants';
 
-    protected static ?string $title = 'Participants';
+    protected static ?string $title = 'Artists';
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Select::make('participant_type_id')
-                    ->label('Type')
-                    ->relationship('participantType', 'name')
+                Select::make('artist_id')
+                    ->label('Artist')
+                    ->relationship('artist', 'name')
                     ->required()
                     ->searchable()
-                    ->preload(),
-                Textarea::make('bio')
-                    ->label('Short bio')
-                    ->rows(4)
-                    ->columnSpanFull(),
-                FileUpload::make('image_path')
-                    ->label('Profile image')
-                    ->image()
-                    ->disk('public')
-                    ->directory('participants')
-                    ->visibility('public')
-                    ->maxSize(2048)
-                    ->automaticallyResizeImagesMode('contain')
-                    ->automaticallyResizeImagesToWidth(800)
-                    ->automaticallyResizeImagesToHeight(800)
-                    ->imageResizeUpscale(false)
-                    ->columnSpanFull(),
+                    ->preload()
+                    ->helperText('Artists are stored separately and can be reused on other events.')
+                    ->unique(
+                        ignoreRecord: true,
+                        modifyRuleUsing: fn (Unique $rule): Unique => $rule->where(
+                            'event_id',
+                            $this->getOwnerRecord()->getKey(),
+                        ),
+                    )
+                    ->createOptionForm(ArtistResource::formComponents()),
                 Repeater::make('scheduleEntries')
                     ->relationship()
                     ->label('Schedule entries')
@@ -110,18 +100,24 @@ class ParticipantsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('artist.name')
             ->columns([
-                ImageColumn::make('image_path')
+                ImageColumn::make('artist.image_path')
                     ->label('Photo')
-                    ->getStateUsing(fn (EventParticipant $record): ?string => $record->imageUrl())
+                    ->getStateUsing(fn (EventParticipant $record): ?string => $record->artist?->imageUrl())
                     ->circular(),
-                TextColumn::make('name')
+                TextColumn::make('artist.name')
+                    ->label('Artist')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('participantType.name')
+                TextColumn::make('artist.participantType.name')
                     ->label('Type')
                     ->sortable(),
+                TextColumn::make('artist.genres.name')
+                    ->label('Genres')
+                    ->badge()
+                    ->separator(',')
+                    ->placeholder('—'),
                 TextColumn::make('schedule_entries_count')
                     ->counts('scheduleEntries')
                     ->label('Schedule'),
@@ -129,7 +125,8 @@ class ParticipantsRelationManager extends RelationManager
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->label('Add artist'),
             ])
             ->recordActions([
                 EditAction::make(),

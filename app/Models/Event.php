@@ -28,7 +28,13 @@ class Event extends Model
      */
     public function participants(): HasMany
     {
-        return $this->hasMany(EventParticipant::class)->orderBy('sort_order')->orderBy('name');
+        return $this->hasMany(EventParticipant::class)
+            ->orderBy('sort_order')
+            ->orderBy(
+                Artist::query()
+                    ->select('name')
+                    ->whereColumn('artists.id', 'event_participants.artist_id'),
+            );
     }
 
     /**
@@ -62,7 +68,7 @@ class Event extends Model
                 });
             });
         } else {
-            $entries = $this->scheduleEntries()->with(['stage', 'eventParticipant'])->get();
+            $entries = $this->scheduleEntries()->with(['stage', 'eventParticipant.artist'])->get();
         }
 
         return $entries

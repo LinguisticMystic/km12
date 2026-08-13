@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Genre;
 use App\Models\ParticipantType;
 use App\Models\Stage;
 use Illuminate\Database\Seeder;
@@ -23,6 +24,29 @@ class EventLookupsSeeder extends Seeder
 
         foreach ($types as $index => $name) {
             ParticipantType::query()->updateOrCreate(
+                ['name' => $name],
+                ['sort_order' => $index],
+            );
+        }
+
+        $genres = [
+            'Ambient',
+            'Disco',
+            'Drum & Bass',
+            'Experimental',
+            'Funk',
+            'Hip Hop',
+            'House',
+            'Jazz',
+            'Live',
+            'Psychedelic',
+            'Techno',
+            'Trance',
+            'World',
+        ];
+
+        foreach ($genres as $index => $name) {
+            Genre::query()->updateOrCreate(
                 ['name' => $name],
                 ['sort_order' => $index],
             );

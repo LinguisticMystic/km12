@@ -17,10 +17,10 @@ class ParticipantType extends Model
     }
 
     /**
-     * @return HasMany<EventParticipant, $this>
+     * @return HasMany<Artist, $this>
      */
-    public function eventParticipants(): HasMany
+    public function artists(): HasMany
     {
-        return $this->hasMany(EventParticipant::class);
+        return $this->hasMany(Artist::class);
     }
 }

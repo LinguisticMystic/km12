@@ -40,21 +40,22 @@
         </div>
 
         @if ($event->participants->isNotEmpty())
-            <section class="mt-14" aria-labelledby="participants-heading">
-                <h2 id="participants-heading" class="text-2xl font-semibold tracking-tight">
-                    Participants
+            <section class="mt-14" aria-labelledby="artists-heading">
+                <h2 id="artists-heading" class="text-2xl font-semibold tracking-tight">
+                    Artists
                 </h2>
 
                 <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-start gap-4">
                     @foreach ($event->participants as $participant)
+                        @php $artist = $participant->artist; @endphp
                         <li
                             id="participant-{{ $participant->id }}"
                             class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
                         >
-                            @if ($participant->imageUrl())
+                            @if ($artist?->imageUrl())
                                 <img
-                                    src="{{ $participant->imageUrl() }}"
-                                    alt="{{ $participant->name }}"
+                                    src="{{ $artist->imageUrl() }}"
+                                    alt="{{ $artist->name }}"
                                     class="aspect-square w-full object-cover"
                                 >
                             @else
@@ -67,17 +68,26 @@
 
                             <div class="flex flex-1 flex-col gap-2 p-5">
                                 <div>
-                                    <h3 class="text-lg font-medium">{{ $participant->name }}</h3>
-                                    @if ($participant->participantType)
+                                    <h3 class="text-lg font-medium">{{ $artist?->name }}</h3>
+                                    @if ($artist?->participantType)
                                         <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                            {{ $participant->participantType->name }}
+                                            {{ $artist->participantType->name }}
                                         </p>
+                                    @endif
+                                    @if ($artist?->genres?->isNotEmpty())
+                                        <ul class="mt-2 flex flex-wrap gap-1.5">
+                                            @foreach ($artist->genres as $genre)
+                                                <li class="rounded-full border border-[#e3e3e0] px-2 py-0.5 text-xs text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                                    {{ $genre->name }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
                                     @endif
                                 </div>
 
-                                @if (filled($participant->bio))
+                                @if (filled($artist?->bio))
                                     <p class="text-sm leading-relaxed text-[#1b1b18] dark:text-[#EDEDEC]">
-                                        {{ $participant->bio }}
+                                        {{ $artist->bio }}
                                     </p>
                                 @endif
 
@@ -169,7 +179,7 @@
                                                         href="#participant-{{ $entry->eventParticipant?->id }}"
                                                         class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
                                                     >
-                                                        {{ $entry->eventParticipant?->name }}
+                                                        {{ $entry->eventParticipant?->artist?->name }}
                                                     </a>
                                                     @if (filled($entry->notes))
                                                         <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">

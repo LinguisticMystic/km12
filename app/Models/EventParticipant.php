@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['event_id', 'participant_type_id', 'name', 'bio', 'image_path', 'sort_order'])]
+#[Fillable(['event_id', 'artist_id', 'sort_order'])]
 class EventParticipant extends Model
 {
     protected static function booted(): void
@@ -33,11 +32,11 @@ class EventParticipant extends Model
     }
 
     /**
-     * @return BelongsTo<ParticipantType, $this>
+     * @return BelongsTo<Artist, $this>
      */
-    public function participantType(): BelongsTo
+    public function artist(): BelongsTo
     {
-        return $this->belongsTo(ParticipantType::class);
+        return $this->belongsTo(Artist::class);
     }
 
     /**
@@ -46,14 +45,5 @@ class EventParticipant extends Model
     public function scheduleEntries(): HasMany
     {
         return $this->hasMany(ScheduleEntry::class)->orderBy('starts_at');
-    }
-
-    public function imageUrl(): ?string
-    {
-        if (! filled($this->image_path)) {
-            return null;
-        }
-
-        return url(Storage::disk('public')->url($this->image_path));
     }
 }
