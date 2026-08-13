@@ -63,7 +63,7 @@ class EventTest extends TestCase
     {
         $event = Event::query()->create([
             'name' => 'Forest Gathering',
-            'date' => now()->addDays(10),
+            'date' => now()->setDate(2026, 8, 28)->setTime(20, 0),
             'description' => 'A night in the woods.',
             'ticket_url' => null,
             'poster_path' => null,
@@ -96,16 +96,24 @@ class EventTest extends TestCase
         ScheduleEntry::query()->create([
             'event_participant_id' => $alice->id,
             'stage_id' => $mainStage->id,
-            'starts_at' => now()->addDays(10)->setTime(20, 0),
-            'ends_at' => now()->addDays(10)->setTime(22, 0),
+            'starts_at' => now()->setDate(2026, 8, 28)->setTime(22, 0),
+            'ends_at' => now()->setDate(2026, 8, 28)->setTime(23, 0),
+            'notes' => null,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $alice->id,
+            'stage_id' => $mainStage->id,
+            'starts_at' => now()->setDate(2026, 8, 29)->setTime(21, 0),
+            'ends_at' => now()->setDate(2026, 8, 29)->setTime(22, 0),
             'notes' => null,
         ]);
 
         ScheduleEntry::query()->create([
             'event_participant_id' => $alice->id,
             'stage_id' => $forestStage->id,
-            'starts_at' => now()->addDays(11)->setTime(1, 0),
-            'ends_at' => now()->addDays(11)->setTime(3, 0),
+            'starts_at' => now()->setDate(2026, 8, 29)->setTime(23, 0),
+            'ends_at' => now()->setDate(2026, 8, 30)->setTime(1, 0),
             'notes' => 'Late set',
         ]);
 
@@ -119,8 +127,10 @@ class EventTest extends TestCase
         $response->assertSee('Schedule');
         $response->assertSee('Main Stage');
         $response->assertSee('Forest Stage');
-        $response->assertSee('20:00');
-        $response->assertSee('01:00');
+        $response->assertSee('Friday, 28 August');
+        $response->assertSee('Saturday, 29 August');
+        $response->assertSee('22:00');
+        $response->assertSee('21:00');
         $response->assertSee('Late set');
         $response->assertSee('schedule-entry-', false);
     }

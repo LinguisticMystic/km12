@@ -49,7 +49,7 @@
                     @foreach ($event->participants as $participant)
                         <li
                             id="participant-{{ $participant->id }}"
-                            class="flex w-full flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
+                            class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
                         >
                             @if ($participant->imageUrl())
                                 <img
@@ -82,7 +82,7 @@
                                 @endif
 
                                 @if ($participant->scheduleEntries->isNotEmpty())
-                                    <ul class="mt-2 space-y-2 border-t border-[#e3e3e0] pt-3 dark:border-[#3E3E3A]">
+                                    <ul class="mt-auto space-y-2 border-t border-[#e3e3e0] pt-3 dark:border-[#3E3E3A]">
                                         @foreach ($participant->scheduleEntries as $entry)
                                             <li>
                                                 <a
@@ -121,45 +121,65 @@
                 </h2>
 
                 <div class="mt-8 space-y-10">
+                    @php
+                        $timezone = config('app.timezone');
+                        $scheduleHasMultipleDays = $scheduleByStage
+                            ->collapse()
+                            ->map(fn ($entry) => $entry->starts_at?->timezone($timezone)->toDateString())
+                            ->unique()
+                            ->count() > 1;
+                    @endphp
                     @foreach ($scheduleByStage as $entries)
                         @php
                             $stage = $entries->first()?->stage;
+                            $entriesByDay = $entries->groupBy(
+                                fn ($entry) => $entry->starts_at?->timezone($timezone)->toDateString() ?? ''
+                            );
                         @endphp
                         <div>
                             <h3 class="text-lg font-medium">
                                 {{ $stage?->name ?? 'Unassigned' }}
                             </h3>
                             <ol class="mt-4 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                @foreach ($entries as $entry)
-                                    <li
-                                        id="schedule-entry-{{ $entry->id }}"
-                                        class="schedule-entry scroll-mt-24 px-5 py-4 transition-[background-color,box-shadow] duration-300"
-                                    >
-                                        <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                                            <time
-                                                datetime="{{ $entry->starts_at->toIso8601String() }}"
-                                                class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
-                                            >
-                                                {{ $entry->starts_at->timezone(config('app.timezone'))->format('H:i') }}
-                                                @if ($entry->ends_at)
-                                                    – {{ $entry->ends_at->timezone(config('app.timezone'))->format('H:i') }}
-                                                @endif
-                                            </time>
-                                            <div class="min-w-0 flex-1">
-                                                <a
-                                                    href="#participant-{{ $entry->eventParticipant?->id }}"
-                                                    class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
+                                @foreach ($entriesByDay as $dayEntries)
+                                    @if ($scheduleHasMultipleDays)
+                                        <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
+                                            <h4 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                                {{ $dayEntries->first()?->starts_at?->timezone($timezone)->format('l, j F') }}
+                                            </h4>
+                                        </li>
+                                    @endif
+                                    @foreach ($dayEntries as $entry)
+                                        <li
+                                            id="schedule-entry-{{ $entry->id }}"
+                                            class="schedule-entry scroll-mt-24 px-5 py-4 transition-[background-color,box-shadow] duration-300"
+                                        >
+                                            <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                                                <time
+                                                    datetime="{{ $entry->starts_at->toIso8601String() }}"
+                                                    class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
                                                 >
-                                                    {{ $entry->eventParticipant?->name }}
-                                                </a>
-                                                @if (filled($entry->notes))
-                                                    <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                                        {{ $entry->notes }}
-                                                    </p>
-                                                @endif
+                                                    {{ $entry->starts_at->timezone($timezone)->format('H:i') }}
+                                                    @if ($entry->ends_at)
+                                                        – {{ $entry->ends_at->timezone($timezone)->format('H:i') }}
+                                                    @endif
+                                                </time>
+                                                <div class="min-w-0 flex-1">
+                                                    <a
+                                                        href="#participant-{{ $entry->eventParticipant?->id }}"
+                                                        class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
+                                                    >
+                                                        {{ $entry->eventParticipant?->name }}
+                                                    </a>
+                                                    @if (filled($entry->notes))
+                                                        <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                                                            {{ $entry->notes }}
+                                                        </p>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
+                                        </li>
+                                    @endforeach
                                 @endforeach
                             </ol>
                         </div>
