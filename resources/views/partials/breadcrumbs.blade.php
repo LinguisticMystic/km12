@@ -4,11 +4,11 @@
     $current = match (true) {
         request()->routeIs('door-opener') => 'Door opener',
         request()->routeIs('wayfinder') => 'Wayfinder',
-        request()->routeIs('calendar') => 'Calendar',
-        request()->routeIs('events.index') => 'Events',
-        request()->routeIs('events.show') => $eventShow?->name ?? 'Event',
-        request()->routeIs('about') => 'About',
-        request()->routeIs('login') => 'Log in',
+        request()->routeIs('calendar') => __('Calendar'),
+        request()->routeIs('events.index') => __('Events'),
+        request()->routeIs('events.show') => $eventShow?->name ?? __('Events'),
+        request()->routeIs('about') => __('About'),
+        request()->routeIs('login') => __('Log in'),
         default => null,
     };
 @endphp
@@ -24,7 +24,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>
-                    <span>Home</span>
+                    <span>{{ __('Home') }}</span>
                 </a>
             </li>
             @if (request()->routeIs('events.show'))
@@ -34,7 +34,7 @@
                         href="{{ route('events.index') }}"
                         class="rounded-sm border border-transparent px-1 py-0.5 transition hover:border-[#19140035] hover:text-[#1b1b18] dark:hover:border-[#3E3E3A] dark:hover:text-[#EDEDEC]"
                     >
-                        Events
+                        {{ __('Events') }}
                     </a>
                 </li>
             @endif

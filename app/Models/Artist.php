@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['participant_type_id', 'name', 'bio', 'image_path'])]
+#[Fillable(['participant_type_id', 'name', 'bio', 'bio_en', 'image_path'])]
 class Artist extends Model
 {
     /**
@@ -45,6 +45,13 @@ class Artist extends Model
             ->withPivot('id', 'sort_order')
             ->withTimestamps()
             ->orderBy('date');
+    }
+
+    public function localizedBio(): ?string
+    {
+        $bio = localized_text($this->bio, $this->bio_en);
+
+        return $bio === '' ? null : $bio;
     }
 
     public function imageUrl(): ?string

@@ -17,7 +17,7 @@
                 {{ $event->name }}
             </h1>
             <p class="mt-3 text-base text-[#706f6c] dark:text-[#A1A09A]">
-                {{ $event->date->timezone(config('app.timezone'))->format('l, j F Y · H:i') }}
+                {{ $event->date->timezone(config('app.timezone'))->translatedFormat('l, j F Y · H:i') }}
             </p>
             @if (filled($event->ticket_url))
                 <div class="mt-6">
@@ -27,7 +27,7 @@
                         rel="noopener noreferrer"
                         class="inline-flex items-center gap-2 rounded-sm border border-[#19140035] px-5 py-2 text-sm font-medium transition hover:border-[#1915014a] dark:border-[#3E3E3A] dark:hover:border-[#62605b]"
                     >
-                        Get tickets
+                        {{ __('Get tickets') }}
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                         </svg>
@@ -35,19 +35,22 @@
                 </div>
             @endif
             <div class="mt-6 whitespace-pre-line text-base leading-relaxed text-[#1b1b18] dark:text-[#EDEDEC]">
-                {{ $event->description }}
+                {{ $event->localizedDescription() }}
             </div>
         </div>
 
         @if ($event->participants->isNotEmpty())
             <section class="mt-14" aria-labelledby="artists-heading">
                 <h2 id="artists-heading" class="text-2xl font-semibold tracking-tight">
-                    Artists
+                    {{ __('Artists') }}
                 </h2>
 
                 <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-start gap-4">
                     @foreach ($event->participants as $participant)
-                        @php $artist = $participant->artist; @endphp
+                        @php
+                            $artist = $participant->artist;
+                            $artistBio = $artist?->localizedBio();
+                        @endphp
                         <li
                             id="participant-{{ $participant->id }}"
                             class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
@@ -85,9 +88,9 @@
                                     @endif
                                 </div>
 
-                                @if (filled($artist?->bio))
+                                @if (filled($artistBio))
                                     <p class="text-sm leading-relaxed text-[#1b1b18] dark:text-[#EDEDEC]">
-                                        {{ $artist->bio }}
+                                        {{ $artistBio }}
                                     </p>
                                 @endif
 
@@ -101,7 +104,7 @@
                                                     data-schedule-target="schedule-entry-{{ $entry->id }}"
                                                 >
                                                     <span class="block font-medium text-[#1b1b18] dark:text-[#EDEDEC]">
-                                                        {{ $entry->starts_at->timezone(config('app.timezone'))->format('l') }}
+                                                        {{ $entry->starts_at->timezone(config('app.timezone'))->translatedFormat('l') }}
                                                     </span>
                                                     <span class="block text-[#706f6c] dark:text-[#A1A09A]">
                                                         {{ $entry->starts_at->timezone(config('app.timezone'))->format('H:i') }}
@@ -127,7 +130,7 @@
         @if ($scheduleByStage->isNotEmpty())
             <section id="schedule" class="mt-14" aria-labelledby="schedule-heading">
                 <h2 id="schedule-heading" class="text-2xl font-semibold tracking-tight">
-                    Schedule
+                    {{ __('Schedule') }}
                 </h2>
 
                 <div class="mt-8 space-y-10">
@@ -148,14 +151,14 @@
                         @endphp
                         <div>
                             <h3 class="text-lg font-medium">
-                                {{ $stage?->name ?? 'Unassigned' }}
+                                {{ $stage?->name ?? __('Unassigned') }}
                             </h3>
                             <ol class="mt-4 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
                                 @foreach ($entriesByDay as $dayEntries)
                                     @if ($scheduleHasMultipleDays)
                                         <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
                                             <h4 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                                {{ $dayEntries->first()?->starts_at?->timezone($timezone)->format('l, j F') }}
+                                                {{ $dayEntries->first()?->starts_at?->timezone($timezone)->translatedFormat('l, j F') }}
                                             </h4>
                                         </li>
                                     @endif

@@ -3,11 +3,14 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DoorOpenerController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
 require __DIR__.'/wayfinder.php';
 

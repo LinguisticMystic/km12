@@ -62,7 +62,11 @@ class ArtistResource extends Resource
                         ->unique(),
                 ]),
             Textarea::make('bio')
-                ->label('Short bio')
+                ->label('Short bio (LV)')
+                ->rows(4)
+                ->columnSpanFull(),
+            Textarea::make('bio_en')
+                ->label('Short bio (EN)')
                 ->rows(4)
                 ->columnSpanFull(),
             FileUpload::make('image_path')

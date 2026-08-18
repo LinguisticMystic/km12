@@ -21,8 +21,8 @@ class EventTest extends TestCase
         $response = $this->get(route('events.index'));
 
         $response->assertOk();
-        $response->assertSee('Events');
-        $response->assertSee('No events yet');
+        $response->assertSee('Pasākumi');
+        $response->assertSee('Vēl nav pasākumu');
     }
 
     public function test_events_index_lists_events(): void
@@ -57,7 +57,7 @@ class EventTest extends TestCase
         $response->assertOk();
         $response->assertSee('Workshop');
         $response->assertSee('Learn something new.');
-        $response->assertSee('Get tickets');
+        $response->assertSee('Biļetes');
         $response->assertSee('https://example.com/tickets/workshop');
     }
 
@@ -138,17 +138,21 @@ class EventTest extends TestCase
         $response = $this->get(route('events.show', $event));
 
         $response->assertOk();
-        $response->assertSee('Artists');
+        $timezone = config('app.timezone');
+        $friday = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
+        $saturday = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
+
+        $response->assertSee('Mākslinieki');
         $response->assertSee('DJ Alice');
         $response->assertSee('DJ');
         $response->assertSee('House');
         $response->assertSee('Ambient');
         $response->assertSee('Deep house and ambient.');
-        $response->assertSee('Schedule');
+        $response->assertSee('Programma');
         $response->assertSee('Main Stage');
         $response->assertSee('Forest Stage');
-        $response->assertSee('Friday, 28 August');
-        $response->assertSee('Saturday, 29 August');
+        $response->assertSee($friday);
+        $response->assertSee($saturday);
         $response->assertSee('22:00');
         $response->assertSee('21:00');
         $response->assertSee('Late set');
@@ -168,7 +172,7 @@ class EventTest extends TestCase
         $response = $this->get(route('events.show', $event));
 
         $response->assertOk();
-        $response->assertDontSee('Artists');
+        $response->assertDontSee('Mākslinieki');
         $response->assertDontSee('id="schedule"', false);
     }
 
@@ -233,7 +237,7 @@ class EventTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(route('events.index'), false);
-        $response->assertSee('Events');
+        $response->assertSee('Pasākumi');
         $response->assertDontSee('Door opener');
     }
 }

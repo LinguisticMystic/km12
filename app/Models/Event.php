@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'date', 'description', 'ticket_url', 'poster_path'])]
+#[Fillable(['name', 'date', 'description', 'description_en', 'ticket_url', 'poster_path'])]
 class Event extends Model
 {
     /**
@@ -81,6 +81,11 @@ class Event extends Model
 
                 return sprintf('%05d-%s', $stage?->sort_order ?? 99999, $stage?->name ?? '');
             });
+    }
+
+    public function localizedDescription(): string
+    {
+        return localized_text($this->description, $this->description_en);
     }
 
     public function posterUrl(): ?string

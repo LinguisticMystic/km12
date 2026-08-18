@@ -20,6 +20,8 @@
                 @include('partials.breadcrumbs')
 
                 <nav class="ml-auto flex shrink-0 items-center gap-4 text-sm">
+                @include('partials.language-switcher')
+
                 @auth
                     @if (auth()->user()->is_admin)
                         <a
@@ -36,7 +38,7 @@
                             type="submit"
                             class="cursor-pointer rounded-sm border border-[#19140035] px-5 py-1.5 transition hover:border-[#1915014a] dark:border-[#3E3E3A] dark:hover:border-[#62605b]"
                         >
-                            Log out
+                            {{ __('Log out') }}
                         </button>
                     </form>
                 @else
@@ -44,7 +46,7 @@
                         href="{{ route('login') }}"
                         class="rounded-sm border border-[#19140035] px-5 py-1.5 transition hover:border-[#1915014a] dark:border-[#3E3E3A] dark:hover:border-[#62605b]"
                     >
-                        Log in
+                        {{ __('Log in') }}
                     </a>
                 @endauth
                 </nav>
@@ -56,7 +58,7 @@
         </main>
 
         <footer class="px-6 py-8 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]">
-            Created by
+            {{ __('Created by') }}
             <a
                 href="https://github.com/LinguisticMystic"
                 target="_blank"

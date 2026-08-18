@@ -235,10 +235,10 @@
         <p id="grid-status" style="visibility: hidden" aria-live="polite"></p>
 
         <div id="map-container">
-            <div id="map-loader" role="status" aria-live="polite" aria-label="Loading floor plan">
+            <div id="map-loader" role="status" aria-live="polite" aria-label="{{ __('Loading floor plan') }}">
                 <div class="map-loader-spinner" aria-hidden="true"></div>
             </div>
-            <img id="floor-img" alt="Floor plan" width="595" height="842" decoding="async" />
+            <img id="floor-img" alt="{{ __('Floor plan') }}" width="595" height="842" decoding="async" />
             <svg class="overlay" id="floor-plan" viewBox="0 0 595 842" preserveAspectRatio="none">
                 <polyline id="path-line" points="" />
                 <g id="rooms-layer"></g>
@@ -246,8 +246,8 @@
             </svg>
         </div>
 
-        <nav id="room-list" class="room-list" aria-label="Wayfinder navigation">
-            <ul id="floor-tabs" role="tablist" aria-label="Floors"></ul>
+        <nav id="room-list" class="room-list" aria-label="{{ __('Wayfinder navigation') }}">
+            <ul id="floor-tabs" role="tablist" aria-label="{{ __('Floors') }}"></ul>
             <ul id="room-list-items"></ul>
         </nav>
 

@@ -47,7 +47,12 @@ class EventResource extends Resource
                     ->native(false)
                     ->seconds(false),
                 Textarea::make('description')
+                    ->label('Description (LV)')
                     ->required()
+                    ->rows(6)
+                    ->columnSpanFull(),
+                Textarea::make('description_en')
+                    ->label('Description (EN)')
                     ->rows(6)
                     ->columnSpanFull(),
                 TextInput::make('ticket_url')

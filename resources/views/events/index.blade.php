@@ -1,21 +1,21 @@
 @extends('layouts.km12')
 
-@section('title', 'Events — KM12')
+@section('title', __('Events').' — KM12')
 
 @section('content')
     <div class="w-full max-w-2xl self-stretch">
         <div class="text-center sm:text-left">
             <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Events
+                {{ __('Events') }}
             </h1>
             <p class="mt-4 text-base leading-relaxed text-[#706f6c] dark:text-[#A1A09A]">
-                Upcoming and past events at KM12.
+                {{ __('Upcoming and past events at KM12.') }}
             </p>
         </div>
 
         @if ($events->isEmpty())
             <p class="mt-12 text-center text-sm text-[#706f6c] sm:text-left dark:text-[#A1A09A]">
-                No events yet. Check back soon.
+                {{ __('No events yet. Check back soon.') }}
             </p>
         @else
             <ul class="mt-12 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
@@ -41,7 +41,7 @@
                             <span class="min-w-0 flex-1">
                                 <span class="block font-medium">{{ $event->name }}</span>
                                 <span class="mt-0.5 block text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                    {{ $event->date->timezone(config('app.timezone'))->format('D, j M Y · H:i') }}
+                                    {{ $event->date->timezone(config('app.timezone'))->translatedFormat('D, j M Y · H:i') }}
                                 </span>
                             </span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-4 shrink-0 text-[#706f6c] transition group-hover:translate-x-0.5 dark:text-[#A1A09A]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
