@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Artist;
 use App\Models\Event;
 use App\Models\EventParticipant;
+use App\Models\Extra;
+use App\Models\ExtraType;
 use App\Models\Genre;
 use App\Models\ParticipantType;
 use App\Models\ScheduleEntry;
@@ -116,24 +118,27 @@ class EventTest extends TestCase
         ScheduleEntry::query()->create([
             'event_participant_id' => $appearance->id,
             'stage_id' => $mainStage->id,
-            'starts_at' => now()->setDate(2026, 8, 28)->setTime(22, 0),
-            'ends_at' => now()->setDate(2026, 8, 28)->setTime(23, 0),
+            'date' => '2026-08-28',
+            'starts_at' => '22:00',
+            'ends_at' => '23:00',
             'notes' => null,
         ]);
 
         ScheduleEntry::query()->create([
             'event_participant_id' => $appearance->id,
             'stage_id' => $mainStage->id,
-            'starts_at' => now()->setDate(2026, 8, 29)->setTime(21, 0),
-            'ends_at' => now()->setDate(2026, 8, 29)->setTime(22, 0),
+            'date' => '2026-08-29',
+            'starts_at' => '21:00',
+            'ends_at' => '22:00',
             'notes' => null,
         ]);
 
         ScheduleEntry::query()->create([
             'event_participant_id' => $appearance->id,
             'stage_id' => $forestStage->id,
-            'starts_at' => now()->setDate(2026, 8, 29)->setTime(23, 0),
-            'ends_at' => now()->setDate(2026, 8, 30)->setTime(1, 0),
+            'date' => '2026-08-29',
+            'starts_at' => '23:00',
+            'ends_at' => '01:00',
             'notes' => 'Late set',
         ]);
 
@@ -179,7 +184,234 @@ class EventTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('Mākslinieki');
+        $response->assertDontSee('Papildus');
         $response->assertDontSee('id="schedule"', false);
+    }
+
+    public function test_events_show_renders_extras_alongside_artists_on_the_same_stage(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Techno Night',
+            'date' => now()->setDate(2026, 8, 28)->setTime(20, 0),
+            'description' => 'DJs and drinks.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $djType = ParticipantType::query()->create([
+            'name' => 'DJ',
+            'sort_order' => 0,
+        ]);
+
+        $barType = ExtraType::query()->create([
+            'name' => 'Bar',
+            'sort_order' => 0,
+        ]);
+
+        $technoStage = Stage::query()->create([
+            'name' => 'Techno Stage',
+            'sort_order' => 0,
+        ]);
+
+        $alice = Artist::query()->create([
+            'participant_type_id' => $djType->id,
+            'name' => 'DJ Alice',
+            'bio' => 'Peak time techno.',
+            'image_path' => null,
+        ]);
+
+        $bar = Extra::query()->create([
+            'extra_type_id' => $barType->id,
+            'name' => 'Sideline Bar',
+            'bio' => 'Drinks on the sidelines.',
+            'instagram_url' => 'https://instagram.com/sidelinebar',
+            'website_url' => 'https://sidelinebar.example',
+            'image_path' => null,
+        ]);
+
+        $artistAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'artist_id' => $alice->id,
+            'sort_order' => 0,
+        ]);
+
+        $extraAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'extra_id' => $bar->id,
+            'sort_order' => 1,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $artistAppearance->id,
+            'stage_id' => $technoStage->id,
+            'date' => '2026-08-28',
+            'starts_at' => '22:00',
+            'ends_at' => '23:30',
+            'notes' => null,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $extraAppearance->id,
+            'stage_id' => $technoStage->id,
+            'date' => '2026-08-28',
+            'starts_at' => '21:00',
+            'ends_at' => '02:00',
+            'notes' => 'Serving throughout the night',
+        ]);
+
+        $response = $this->get(route('events.show', $event));
+
+        $response->assertOk();
+        $response->assertSee('Mākslinieki');
+        $response->assertSee('DJ Alice');
+        $response->assertSee('Papildus');
+        $response->assertSee('Sideline Bar');
+        $response->assertSee('Bar');
+        $response->assertSee('Drinks on the sidelines.');
+        $response->assertSee('https://instagram.com/sidelinebar', false);
+        $response->assertSee('https://sidelinebar.example', false);
+        $response->assertSee('Techno Stage');
+        $response->assertSee('Serving throughout the night');
+        $response->assertSee('id="extras-heading"', false);
+        $response->assertSee('id="participant-'.$extraAppearance->id.'"', false);
+    }
+
+    public function test_extras_can_be_reused_across_events_and_persist_after_deletion(): void
+    {
+        $barType = ExtraType::query()->create([
+            'name' => 'Bar',
+            'sort_order' => 0,
+        ]);
+
+        $extra = Extra::query()->create([
+            'extra_type_id' => $barType->id,
+            'name' => 'Sideline Bar',
+            'bio' => 'Drinks on the sidelines.',
+            'image_path' => null,
+        ]);
+
+        $firstEvent = Event::query()->create([
+            'name' => 'Techno Night',
+            'date' => now()->addWeek(),
+            'description' => 'DJs and drinks.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $secondEvent = Event::query()->create([
+            'name' => 'Warehouse Session',
+            'date' => now()->addMonth(),
+            'description' => 'Another night.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        EventParticipant::query()->create([
+            'event_id' => $firstEvent->id,
+            'extra_id' => $extra->id,
+            'sort_order' => 0,
+        ]);
+
+        EventParticipant::query()->create([
+            'event_id' => $secondEvent->id,
+            'extra_id' => $extra->id,
+            'sort_order' => 0,
+        ]);
+
+        $this->get(route('events.show', $firstEvent))
+            ->assertSee('Papildus')
+            ->assertSee('Sideline Bar')
+            ->assertDontSee('Mākslinieki');
+
+        $this->get(route('events.show', $secondEvent))->assertSee('Sideline Bar');
+
+        $firstEvent->delete();
+
+        $this->assertDatabaseHas('extras', [
+            'id' => $extra->id,
+            'name' => 'Sideline Bar',
+        ]);
+
+        $this->get(route('events.show', $secondEvent))->assertSee('Sideline Bar');
+    }
+
+    public function test_events_show_renders_untimed_schedule_entries_with_their_day(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Techno Night',
+            'date' => now()->setDate(2026, 8, 28)->setTime(20, 0),
+            'description' => 'DJs and drinks.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $barType = ExtraType::query()->create([
+            'name' => 'Bar',
+            'sort_order' => 0,
+        ]);
+
+        $technoStage = Stage::query()->create([
+            'name' => 'Techno Stage',
+            'sort_order' => 0,
+        ]);
+
+        $fridayBar = Extra::query()->create([
+            'extra_type_id' => $barType->id,
+            'name' => 'Friday Bar',
+            'bio' => 'Open on Friday.',
+            'image_path' => null,
+        ]);
+
+        $saturdayBar = Extra::query()->create([
+            'extra_type_id' => $barType->id,
+            'name' => 'Saturday Bar',
+            'bio' => 'Open on Saturday.',
+            'image_path' => null,
+        ]);
+
+        $fridayAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'extra_id' => $fridayBar->id,
+            'sort_order' => 0,
+        ]);
+
+        $saturdayAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'extra_id' => $saturdayBar->id,
+            'sort_order' => 1,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $fridayAppearance->id,
+            'stage_id' => $technoStage->id,
+            'date' => '2026-08-28',
+            'starts_at' => null,
+            'ends_at' => null,
+            'notes' => null,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $saturdayAppearance->id,
+            'stage_id' => $technoStage->id,
+            'date' => '2026-08-29',
+            'starts_at' => null,
+            'ends_at' => null,
+            'notes' => null,
+        ]);
+
+        $response = $this->get(route('events.show', $event));
+
+        $response->assertOk();
+        $timezone = config('app.timezone');
+        $fridayHeading = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
+        $saturdayHeading = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
+
+        $response->assertSee('Friday Bar');
+        $response->assertSee('Saturday Bar');
+        $response->assertSee($fridayHeading);
+        $response->assertSee($saturdayHeading);
+        $response->assertSee('Visu dienu');
+        $response->assertDontSee('00:00');
     }
 
     public function test_artists_can_be_reused_across_events_and_persist_after_deletion(): void

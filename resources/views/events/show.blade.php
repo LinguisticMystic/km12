@@ -39,108 +39,29 @@
             </div>
         </div>
 
-        @if ($event->participants->isNotEmpty())
+        @if ($event->artistParticipants->isNotEmpty())
             <section class="mt-14" aria-labelledby="artists-heading">
                 <h2 id="artists-heading" class="text-2xl font-semibold tracking-tight">
                     {{ __('Artists') }}
                 </h2>
 
                 <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-start gap-4">
-                    @foreach ($event->participants as $participant)
-                        @php
-                            $artist = $participant->artist;
-                            $artistBio = $artist?->localizedBio();
-                            $artistMeta = collect([$artist?->participantType?->name])
-                                ->merge($artist?->genres?->pluck('name') ?? [])
-                                ->filter();
-                            $artistLinks = collect([
-                                ['url' => $artist?->instagram_url, 'icon' => 'instagram', 'label' => 'Instagram'],
-                                ['url' => $artist?->website_url, 'icon' => 'website', 'label' => 'Website'],
-                            ])->filter(fn (array $link) => filled($link['url']));
-                        @endphp
-                        <li
-                            id="participant-{{ $participant->id }}"
-                            class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
-                        >
-                            @if ($artist?->imageUrl())
-                                <img
-                                    src="{{ $artist->imageUrl() }}"
-                                    alt="{{ $artist->name }}"
-                                    class="aspect-square w-full object-cover"
-                                >
-                            @else
-                                <div class="flex aspect-square w-full items-center justify-center bg-[#FDFDFC] text-[#706f6c] dark:bg-[#0a0a0a] dark:text-[#A1A09A]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                                    </svg>
-                                </div>
-                            @endif
+                    @foreach ($event->artistParticipants as $participant)
+                        @include('partials.event-participant-card', ['participant' => $participant])
+                    @endforeach
+                </ul>
+            </section>
+        @endif
 
-                            <div class="flex flex-1 flex-col gap-3 p-5">
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="min-w-0">
-                                        <h3 class="text-lg font-medium leading-snug">{{ $artist?->name }}</h3>
-                                        @if ($artistMeta->isNotEmpty())
-                                            <p class="mt-1 text-sm leading-snug text-[#706f6c] dark:text-[#A1A09A]">
-                                                {{ $artistMeta->implode(' · ') }}
-                                            </p>
-                                        @endif
-                                    </div>
+        @if ($event->extraParticipants->isNotEmpty())
+            <section class="mt-14" aria-labelledby="extras-heading">
+                <h2 id="extras-heading" class="text-2xl font-semibold tracking-tight">
+                    {{ __('Extras') }}
+                </h2>
 
-                                    @if ($artistLinks->isNotEmpty())
-                                        <ul class="-mr-1.5 flex shrink-0">
-                                            @foreach ($artistLinks as $link)
-                                                <li>
-                                                    <a
-                                                        href="{{ $link['url'] }}"
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        aria-label="{{ __($link['label']) }}"
-                                                        title="{{ __($link['label']) }}"
-                                                        class="inline-flex size-7 items-center justify-center rounded-md text-[#706f6c] transition hover:bg-[#FDFDFC] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#0a0a0a] dark:hover:text-[#EDEDEC]"
-                                                    >
-                                                        @include('partials.social-icon', ['icon' => $link['icon'], 'class' => 'size-4'])
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
-                                </div>
-
-                                @if (filled($artistBio))
-                                    <p class="text-sm leading-relaxed text-[#1b1b18] dark:text-[#EDEDEC]">
-                                        {{ $artistBio }}
-                                    </p>
-                                @endif
-
-                                @if ($participant->scheduleEntries->isNotEmpty())
-                                    <ul class="mt-auto space-y-2 border-t border-[#e3e3e0] pt-3 dark:border-[#3E3E3A]">
-                                        @foreach ($participant->scheduleEntries as $entry)
-                                            <li>
-                                                <a
-                                                    href="#schedule-entry-{{ $entry->id }}"
-                                                    class="js-schedule-link block rounded-sm text-sm transition hover:bg-[#FDFDFC] dark:hover:bg-[#0a0a0a]"
-                                                    data-schedule-target="schedule-entry-{{ $entry->id }}"
-                                                >
-                                                    <span class="block font-medium text-[#1b1b18] dark:text-[#EDEDEC]">
-                                                        {{ $entry->starts_at->timezone(config('app.timezone'))->translatedFormat('l') }}
-                                                    </span>
-                                                    <span class="block text-[#706f6c] dark:text-[#A1A09A]">
-                                                        {{ $entry->starts_at->timezone(config('app.timezone'))->format('H:i') }}
-                                                        @if ($entry->ends_at)
-                                                            – {{ $entry->ends_at->timezone(config('app.timezone'))->format('H:i') }}
-                                                        @endif
-                                                        @if ($entry->stage)
-                                                            · {{ $entry->stage->name }}
-                                                        @endif
-                                                    </span>
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                            </div>
-                        </li>
+                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-start gap-4">
+                    @foreach ($event->extraParticipants as $participant)
+                        @include('partials.event-participant-card', ['participant' => $participant])
                     @endforeach
                 </ul>
             </section>
@@ -153,19 +74,11 @@
                 </h2>
 
                 <div class="mt-8 space-y-10">
-                    @php
-                        $timezone = config('app.timezone');
-                        $scheduleHasMultipleDays = $scheduleByStage
-                            ->collapse()
-                            ->map(fn ($entry) => $entry->starts_at?->timezone($timezone)->toDateString())
-                            ->unique()
-                            ->count() > 1;
-                    @endphp
                     @foreach ($scheduleByStage as $entries)
                         @php
                             $stage = $entries->first()?->stage;
                             $entriesByDay = $entries->groupBy(
-                                fn ($entry) => $entry->starts_at?->timezone($timezone)->toDateString() ?? ''
+                                fn ($entry) => $entry->date?->toDateString() ?? ''
                             );
                         @endphp
                         <div>
@@ -174,26 +87,62 @@
                             </h3>
                             <ol class="mt-4 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
                                 @foreach ($entriesByDay as $dayEntries)
-                                    @if ($scheduleHasMultipleDays)
+                                    @php
+                                        $allDayEntries = $dayEntries->filter->isAllDay()->values();
+                                        $timedEntries = $dayEntries->reject->isAllDay()->values();
+                                    @endphp
+                                    @if ($dayEntries->first()?->date)
                                         <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
                                             <h4 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                                {{ $dayEntries->first()?->starts_at?->timezone($timezone)->translatedFormat('l, j F') }}
+                                                {{ $dayEntries->first()?->date?->translatedFormat('l, j F') }}
                                             </h4>
                                         </li>
                                     @endif
-                                    @foreach ($dayEntries as $entry)
+                                    @if ($allDayEntries->isNotEmpty())
+                                        <li class="px-5 py-4">
+                                            <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                                                <span class="shrink-0 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] sm:w-28">
+                                                    {{ __('All day') }}
+                                                </span>
+                                                <div class="min-w-0 flex-1">
+                                                    <p class="font-medium text-[#1b1b18] dark:text-[#EDEDEC]">
+                                                        @foreach ($allDayEntries as $entry)
+                                                            @if (! $loop->first)
+                                                                <span class="font-normal text-[#706f6c] dark:text-[#A1A09A]"> · </span>
+                                                            @endif
+                                                            <a
+                                                                id="schedule-entry-{{ $entry->id }}"
+                                                                href="#participant-{{ $entry->eventParticipant?->id }}"
+                                                                class="schedule-entry scroll-mt-24 rounded-sm transition hover:underline"
+                                                            >
+                                                                {{ $entry->eventParticipant?->displayName() }}
+                                                            </a>
+                                                        @endforeach
+                                                    </p>
+                                                    @foreach ($allDayEntries as $entry)
+                                                        @if (filled($entry->notes))
+                                                            <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                                                                {{ $entry->eventParticipant?->displayName() }}: {{ $entry->notes }}
+                                                            </p>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </li>
+                                    @endif
+                                    @foreach ($timedEntries as $entry)
                                         <li
                                             id="schedule-entry-{{ $entry->id }}"
                                             class="schedule-entry scroll-mt-24 px-5 py-4 transition-[background-color,box-shadow] duration-300"
                                         >
                                             <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
                                                 <time
-                                                    datetime="{{ $entry->starts_at->toIso8601String() }}"
+                                                    datetime="{{ $entry->starts_at->format('H:i') }}"
                                                     class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
                                                 >
-                                                    {{ $entry->starts_at->timezone($timezone)->format('H:i') }}
+                                                    {{ $entry->starts_at->format('H:i') }}
                                                     @if ($entry->ends_at)
-                                                        – {{ $entry->ends_at->timezone($timezone)->format('H:i') }}
+                                                        – {{ $entry->ends_at->format('H:i') }}
                                                     @endif
                                                 </time>
                                                 <div class="min-w-0 flex-1">
@@ -201,7 +150,7 @@
                                                         href="#participant-{{ $entry->eventParticipant?->id }}"
                                                         class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
                                                     >
-                                                        {{ $entry->eventParticipant?->artist?->name }}
+                                                        {{ $entry->eventParticipant?->displayName() }}
                                                     </a>
                                                     @if (filled($entry->notes))
                                                         <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">

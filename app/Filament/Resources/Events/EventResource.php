@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Events;
 use App\Filament\Resources\Events\Pages\CreateEvent;
 use App\Filament\Resources\Events\Pages\EditEvent;
 use App\Filament\Resources\Events\Pages\ListEvents;
+use App\Filament\Resources\Events\RelationManagers\ExtrasRelationManager;
 use App\Filament\Resources\Events\RelationManagers\ParticipantsRelationManager;
 use App\Models\Event;
 use Filament\Actions\BulkActionGroup;
@@ -115,6 +116,7 @@ class EventResource extends Resource
     {
         return [
             ParticipantsRelationManager::class,
+            ExtrasRelationManager::class,
         ];
     }
 

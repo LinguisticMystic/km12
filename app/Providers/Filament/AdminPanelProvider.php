@@ -8,6 +8,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -33,6 +34,11 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Amber,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make('Events'),
+                NavigationGroup::make('Artists'),
+                NavigationGroup::make('Extras'),
             ])
             ->navigationItems([
                 NavigationItem::make('website')

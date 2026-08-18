@@ -24,15 +24,15 @@ class ParticipantTypeResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static ?string $navigationLabel = 'Participant types';
+    protected static ?string $navigationLabel = 'Artist types';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Events';
+    protected static string|\UnitEnum|null $navigationGroup = 'Artists';
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $modelLabel = 'participant type';
+    protected static ?string $modelLabel = 'artist type';
 
-    protected static ?string $pluralModelLabel = 'participant types';
+    protected static ?string $pluralModelLabel = 'artist types';
 
     public static function form(Schema $schema): Schema
     {

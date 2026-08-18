@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Events\RelationManagers;
 
 use App\Filament\Forms\ScheduleEntriesRepeater;
-use App\Filament\Resources\Artists\ArtistResource;
+use App\Filament\Resources\Extras\ExtraResource;
 use App\Models\EventParticipant;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -18,23 +18,23 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rules\Unique;
 
-class ParticipantsRelationManager extends RelationManager
+class ExtrasRelationManager extends RelationManager
 {
-    protected static string $relationship = 'artistParticipants';
+    protected static string $relationship = 'extraParticipants';
 
-    protected static ?string $title = 'Artists';
+    protected static ?string $title = 'Extras';
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Select::make('artist_id')
-                    ->label('Artist')
-                    ->relationship('artist', 'name')
+                Select::make('extra_id')
+                    ->label('Extra')
+                    ->relationship('extra', 'name')
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->helperText('Artists are stored separately and can be reused on other events.')
+                    ->helperText('Extras are stored separately and can be reused on other events.')
                     ->unique(
                         ignoreRecord: true,
                         modifyRuleUsing: fn (Unique $rule): Unique => $rule->where(
@@ -42,7 +42,7 @@ class ParticipantsRelationManager extends RelationManager
                             $this->getOwnerRecord()->getKey(),
                         ),
                     )
-                    ->createOptionForm(ArtistResource::formComponents()),
+                    ->createOptionForm(ExtraResource::formComponents()),
                 ScheduleEntriesRepeater::make($this->getOwnerRecord()->date),
             ]);
     }
@@ -50,24 +50,19 @@ class ParticipantsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('artist.name')
+            ->recordTitleAttribute('extra.name')
             ->columns([
-                ImageColumn::make('artist.image_path')
+                ImageColumn::make('extra.image_path')
                     ->label('Photo')
-                    ->getStateUsing(fn (EventParticipant $record): ?string => $record->artist?->imageUrl())
+                    ->getStateUsing(fn (EventParticipant $record): ?string => $record->extra?->imageUrl())
                     ->circular(),
-                TextColumn::make('artist.name')
-                    ->label('Artist')
+                TextColumn::make('extra.name')
+                    ->label('Extra')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('artist.participantType.name')
+                TextColumn::make('extra.extraType.name')
                     ->label('Type')
                     ->sortable(),
-                TextColumn::make('artist.genres.name')
-                    ->label('Genres')
-                    ->badge()
-                    ->separator(',')
-                    ->placeholder('—'),
                 TextColumn::make('schedule_entries_count')
                     ->counts('scheduleEntries')
                     ->label('Schedule'),
@@ -76,7 +71,7 @@ class ParticipantsRelationManager extends RelationManager
             ->reorderable('sort_order')
             ->headerActions([
                 CreateAction::make()
-                    ->label('Add artist'),
+                    ->label('Add extra'),
             ])
             ->recordActions([
                 EditAction::make(),

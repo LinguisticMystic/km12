@@ -19,10 +19,13 @@ class EventController extends Controller
     public function show(Event $event): View
     {
         $event->load([
-            'participants.artist.participantType',
-            'participants.artist.genres',
-            'participants.scheduleEntries' => fn ($query) => $query->orderBy('starts_at'),
-            'participants.scheduleEntries.stage',
+            'artistParticipants.artist.participantType',
+            'artistParticipants.artist.genres',
+            'artistParticipants.scheduleEntries' => fn ($query) => $query->orderBy('date')->orderBy('starts_at'),
+            'artistParticipants.scheduleEntries.stage',
+            'extraParticipants.extra.extraType',
+            'extraParticipants.scheduleEntries' => fn ($query) => $query->orderBy('date')->orderBy('starts_at'),
+            'extraParticipants.scheduleEntries.stage',
         ]);
 
         $scheduleByStage = $event->scheduleGroupedByStage();

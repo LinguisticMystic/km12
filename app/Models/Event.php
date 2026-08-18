@@ -29,11 +29,36 @@ class Event extends Model
     public function participants(): HasMany
     {
         return $this->hasMany(EventParticipant::class)
+            ->orderBy('sort_order');
+    }
+
+    /**
+     * @return HasMany<EventParticipant, $this>
+     */
+    public function artistParticipants(): HasMany
+    {
+        return $this->hasMany(EventParticipant::class)
+            ->whereNotNull('artist_id')
             ->orderBy('sort_order')
             ->orderBy(
                 Artist::query()
                     ->select('name')
                     ->whereColumn('artists.id', 'event_participants.artist_id'),
+            );
+    }
+
+    /**
+     * @return HasMany<EventParticipant, $this>
+     */
+    public function extraParticipants(): HasMany
+    {
+        return $this->hasMany(EventParticipant::class)
+            ->whereNotNull('extra_id')
+            ->orderBy('sort_order')
+            ->orderBy(
+                Extra::query()
+                    ->select('name')
+                    ->whereColumn('extras.id', 'event_participants.extra_id'),
             );
     }
 
@@ -47,7 +72,7 @@ class Event extends Model
             EventParticipant::class,
             'event_id',
             'event_participant_id',
-        )->orderBy('starts_at');
+        )->orderBy('schedule_entries.date')->orderBy('schedule_entries.starts_at');
     }
 
     /**
@@ -58,7 +83,17 @@ class Event extends Model
     public function scheduleGroupedByStage(): Collection
     {
         if ($this->relationLoaded('participants')) {
-            $entries = $this->participants->flatMap(function (EventParticipant $participant) {
+            $participants = $this->participants;
+        } elseif ($this->relationLoaded('artistParticipants') || $this->relationLoaded('extraParticipants')) {
+            $participants = collect()
+                ->concat($this->relationLoaded('artistParticipants') ? $this->artistParticipants : [])
+                ->concat($this->relationLoaded('extraParticipants') ? $this->extraParticipants : []);
+        } else {
+            $participants = null;
+        }
+
+        if ($participants !== null) {
+            $entries = $participants->flatMap(function (EventParticipant $participant) {
                 return $participant->scheduleEntries->map(function (ScheduleEntry $entry) use ($participant) {
                     if (! $entry->relationLoaded('eventParticipant')) {
                         $entry->setRelation('eventParticipant', $participant);
@@ -68,11 +103,15 @@ class Event extends Model
                 });
             });
         } else {
-            $entries = $this->scheduleEntries()->with(['stage', 'eventParticipant.artist'])->get();
+            $entries = $this->scheduleEntries()->with([
+                'stage',
+                'eventParticipant.artist',
+                'eventParticipant.extra',
+            ])->get();
         }
 
         return $entries
-            ->sortBy(fn (ScheduleEntry $entry): int => $entry->starts_at?->getTimestamp() ?? 0)
+            ->sortBy(fn (ScheduleEntry $entry): string => $entry->sortKey())
             ->groupBy(fn (ScheduleEntry $entry): int => (int) $entry->stage_id)
             ->sortBy(function (Collection $group): string {
                 /** @var ScheduleEntry|null $first */

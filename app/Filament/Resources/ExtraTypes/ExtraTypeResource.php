@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\Genres;
+namespace App\Filament\Resources\ExtraTypes;
 
-use App\Filament\Resources\Genres\Pages\CreateGenre;
-use App\Filament\Resources\Genres\Pages\EditGenre;
-use App\Filament\Resources\Genres\Pages\ListGenres;
-use App\Models\Genre;
+use App\Filament\Resources\ExtraTypes\Pages\CreateExtraType;
+use App\Filament\Resources\ExtraTypes\Pages\EditExtraType;
+use App\Filament\Resources\ExtraTypes\Pages\ListExtraTypes;
+use App\Models\ExtraType;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -16,23 +16,23 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class GenreResource extends Resource
+class ExtraTypeResource extends Resource
 {
-    protected static ?string $model = Genre::class;
+    protected static ?string $model = ExtraType::class;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedSwatch;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static ?string $navigationLabel = 'Genres';
+    protected static ?string $navigationLabel = 'Extra types';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Artists';
+    protected static string|\UnitEnum|null $navigationGroup = 'Extras';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
-    protected static ?string $modelLabel = 'genre';
+    protected static ?string $modelLabel = 'extra type';
 
-    protected static ?string $pluralModelLabel = 'genres';
+    protected static ?string $pluralModelLabel = 'extra types';
 
     public static function form(Schema $schema): Schema
     {
@@ -52,9 +52,9 @@ class GenreResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('artists_count')
-                    ->counts('artists')
-                    ->label('Artists'),
+                TextColumn::make('extras_count')
+                    ->counts('extras')
+                    ->label('Extras'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -75,9 +75,9 @@ class GenreResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListGenres::route('/'),
-            'create' => CreateGenre::route('/create'),
-            'edit' => EditGenre::route('/{record}/edit'),
+            'index' => ListExtraTypes::route('/'),
+            'create' => CreateExtraType::route('/create'),
+            'edit' => EditExtraType::route('/{record}/edit'),
         ];
     }
 }
