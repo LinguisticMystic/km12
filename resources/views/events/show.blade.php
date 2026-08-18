@@ -17,7 +17,7 @@
                 {{ $event->name }}
             </h1>
             <p class="mt-3 text-base text-[#706f6c] dark:text-[#A1A09A]">
-                {{ $event->date->timezone(config('app.timezone'))->translatedFormat('l, j F Y · H:i') }}
+                {{ localized_date($event->date->timezone(config('app.timezone')), 'l, j F Y · H:i') }}
             </p>
             @if (filled($event->ticket_url))
                 <div class="mt-6">
@@ -38,34 +38,6 @@
                 {{ $event->localizedDescription() }}
             </div>
         </div>
-
-        @if ($event->artistParticipants->isNotEmpty())
-            <section class="mt-14" aria-labelledby="artists-heading">
-                <h2 id="artists-heading" class="text-2xl font-semibold tracking-tight">
-                    {{ __('Artists') }}
-                </h2>
-
-                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
-                    @foreach ($event->artistParticipants as $participant)
-                        @include('partials.event-participant-card', ['participant' => $participant])
-                    @endforeach
-                </ul>
-            </section>
-        @endif
-
-        @if ($event->extraParticipants->isNotEmpty())
-            <section class="mt-14" aria-labelledby="extras-heading">
-                <h2 id="extras-heading" class="text-2xl font-semibold tracking-tight">
-                    {{ __('Extras') }}
-                </h2>
-
-                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
-                    @foreach ($event->extraParticipants as $participant)
-                        @include('partials.event-participant-card', ['participant' => $participant])
-                    @endforeach
-                </ul>
-            </section>
-        @endif
 
         @if ($scheduleByStage->isNotEmpty())
             <section id="schedule" class="mt-14" aria-labelledby="schedule-heading">
@@ -94,7 +66,7 @@
                                     @if ($dayEntries->first()?->date)
                                         <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
                                             <h4 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                                {{ $dayEntries->first()?->date?->translatedFormat('l, j F') }}
+                                                {{ localized_date($dayEntries->first()?->date, 'l, j F') }}
                                             </h4>
                                         </li>
                                     @endif
@@ -166,6 +138,34 @@
                         </div>
                     @endforeach
                 </div>
+            </section>
+        @endif
+
+        @if ($event->artistParticipants->isNotEmpty())
+            <section class="mt-14" aria-labelledby="artists-heading">
+                <h2 id="artists-heading" class="text-2xl font-semibold tracking-tight">
+                    {{ __('Artists') }}
+                </h2>
+
+                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
+                    @foreach ($event->artistParticipants as $participant)
+                        @include('partials.event-participant-card', ['participant' => $participant])
+                    @endforeach
+                </ul>
+            </section>
+        @endif
+
+        @if ($event->extraParticipants->isNotEmpty())
+            <section class="mt-14" aria-labelledby="extras-heading">
+                <h2 id="extras-heading" class="text-2xl font-semibold tracking-tight">
+                    {{ __('Extras') }}
+                </h2>
+
+                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
+                    @foreach ($event->extraParticipants as $participant)
+                        @include('partials.event-participant-card', ['participant' => $participant])
+                    @endforeach
+                </ul>
             </section>
         @endif
     </article>

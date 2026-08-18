@@ -248,10 +248,14 @@ class EventTest extends TestCase
 
         $response->assertOk();
         $timezone = config('app.timezone');
-        $friday = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
-        $saturday = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
+        $friday = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
+        $saturday = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
 
-        $response->assertSee('Mākslinieki');
+        $response->assertSeeInOrder([
+            'A night in the woods.',
+            'Programma',
+            'Mākslinieki',
+        ]);
         $response->assertSee('DJ Alice');
         $response->assertSee('DJ');
         $response->assertSee('House');
@@ -261,7 +265,6 @@ class EventTest extends TestCase
         $response->assertSee('https://djalice.example', false);
         $response->assertSee('aria-label="Instagram"', false);
         $response->assertSee('aria-label="Mājaslapa"', false);
-        $response->assertSee('Programma');
         $response->assertSee('Main Stage');
         $response->assertSee('Forest Stage');
         $response->assertSee($friday);
@@ -505,8 +508,8 @@ class EventTest extends TestCase
 
         $response->assertOk();
         $timezone = config('app.timezone');
-        $fridayHeading = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
-        $saturdayHeading = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j F');
+        $fridayHeading = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
+        $saturdayHeading = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
 
         $response->assertSee('Friday Bar');
         $response->assertSee('Saturday Bar');

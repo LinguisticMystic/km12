@@ -118,4 +118,43 @@ class LocaleTest extends TestCase
             ->assertOk()
             ->assertSee('Tikai latviski.');
     }
+
+    public function test_event_dates_use_a_period_after_the_day_in_latvian_only(): void
+    {
+        $date = now()->setDate(2026, 8, 28)->setTime(20, 0);
+
+        $event = Event::query()->create([
+            'name' => 'Workshop',
+            'date' => $date,
+            'description' => 'A workshop.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $timezone = config('app.timezone');
+        $localized = $date->timezone($timezone);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee($localized->locale('lv')->translatedFormat('l, j. F Y · H:i'))
+            ->assertDontSee($localized->locale('lv')->translatedFormat('l, j F Y · H:i'));
+
+        $this->from(route('events.show', $event))
+            ->post(route('locale.update'), ['locale' => 'en']);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee($localized->locale('en')->translatedFormat('l, j F Y · H:i'));
+
+        $this->get(route('events.index'))
+            ->assertOk()
+            ->assertSee($localized->locale('en')->translatedFormat('D, j M Y · H:i'));
+
+        $this->from(route('events.index'))
+            ->post(route('locale.update'), ['locale' => 'lv']);
+
+        $this->get(route('events.index'))
+            ->assertOk()
+            ->assertSee($localized->locale('lv')->translatedFormat('D, j. M Y · H:i'));
+    }
 }

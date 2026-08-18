@@ -33,11 +33,6 @@ class Event extends Model
         ];
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     public static function uniqueSlugFor(Event $event): string
     {
         $base = Str::slug($event->name);

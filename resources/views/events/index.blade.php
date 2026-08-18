@@ -41,7 +41,7 @@
                             <span class="min-w-0 flex-1">
                                 <span class="block font-medium">{{ $event->name }}</span>
                                 <span class="mt-0.5 block text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                    {{ $event->date->timezone(config('app.timezone'))->translatedFormat('D, j M Y · H:i') }}
+                                    {{ localized_date($event->date->timezone(config('app.timezone')), 'D, j M Y · H:i') }}
                                 </span>
                             </span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-4 shrink-0 text-[#706f6c] transition group-hover:translate-x-0.5 dark:text-[#A1A09A]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">

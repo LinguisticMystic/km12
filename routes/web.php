@@ -20,7 +20,7 @@ Route::view('about', 'about')->name('about');
 Route::get('events', [EventController::class, 'index'])->name('events.index');
 Route::get('events/{id}', [EventController::class, 'redirectFromId'])
     ->whereNumber('id');
-Route::get('events/{event}', [EventController::class, 'show'])->name('events.show');
+Route::get('events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
