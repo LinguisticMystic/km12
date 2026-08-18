@@ -108,7 +108,7 @@
                                                     <p class="font-medium text-[#1b1b18] dark:text-[#EDEDEC]">
                                                         @foreach ($allDayEntries as $entry)
                                                             @if (! $loop->first)
-                                                                <span class="font-normal text-[#706f6c] dark:text-[#A1A09A]"> · </span>
+                                                                <span class="mx-4 font-normal text-[#706f6c] dark:text-[#A1A09A]">·</span>
                                                             @endif
                                                             <a
                                                                 id="schedule-entry-{{ $entry->id }}"
