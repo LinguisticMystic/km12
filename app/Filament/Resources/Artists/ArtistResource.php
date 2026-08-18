@@ -69,6 +69,18 @@ class ArtistResource extends Resource
                 ->label('Short bio (EN)')
                 ->rows(4)
                 ->columnSpanFull(),
+            TextInput::make('instagram_url')
+                ->label('Instagram URL')
+                ->url()
+                ->maxLength(255)
+                ->nullable()
+                ->placeholder('https://instagram.com/...'),
+            TextInput::make('website_url')
+                ->label('Website URL')
+                ->url()
+                ->maxLength(255)
+                ->nullable()
+                ->placeholder('https://'),
             FileUpload::make('image_path')
                 ->label('Profile image')
                 ->image()

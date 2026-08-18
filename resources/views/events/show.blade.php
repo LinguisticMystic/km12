@@ -50,6 +50,13 @@
                         @php
                             $artist = $participant->artist;
                             $artistBio = $artist?->localizedBio();
+                            $artistMeta = collect([$artist?->participantType?->name])
+                                ->merge($artist?->genres?->pluck('name') ?? [])
+                                ->filter();
+                            $artistLinks = collect([
+                                ['url' => $artist?->instagram_url, 'icon' => 'instagram', 'label' => 'Instagram'],
+                                ['url' => $artist?->website_url, 'icon' => 'website', 'label' => 'Website'],
+                            ])->filter(fn (array $link) => filled($link['url']));
                         @endphp
                         <li
                             id="participant-{{ $participant->id }}"
@@ -69,19 +76,31 @@
                                 </div>
                             @endif
 
-                            <div class="flex flex-1 flex-col gap-2 p-5">
-                                <div>
-                                    <h3 class="text-lg font-medium">{{ $artist?->name }}</h3>
-                                    @if ($artist?->participantType)
-                                        <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                            {{ $artist->participantType->name }}
-                                        </p>
-                                    @endif
-                                    @if ($artist?->genres?->isNotEmpty())
-                                        <ul class="mt-2 flex flex-wrap gap-1.5">
-                                            @foreach ($artist->genres as $genre)
-                                                <li class="rounded-full border border-[#e3e3e0] px-2 py-0.5 text-xs text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
-                                                    {{ $genre->name }}
+                            <div class="flex flex-1 flex-col gap-3 p-5">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <h3 class="text-lg font-medium leading-snug">{{ $artist?->name }}</h3>
+                                        @if ($artistMeta->isNotEmpty())
+                                            <p class="mt-1 text-sm leading-snug text-[#706f6c] dark:text-[#A1A09A]">
+                                                {{ $artistMeta->implode(' · ') }}
+                                            </p>
+                                        @endif
+                                    </div>
+
+                                    @if ($artistLinks->isNotEmpty())
+                                        <ul class="-mr-1.5 flex shrink-0">
+                                            @foreach ($artistLinks as $link)
+                                                <li>
+                                                    <a
+                                                        href="{{ $link['url'] }}"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        aria-label="{{ __($link['label']) }}"
+                                                        title="{{ __($link['label']) }}"
+                                                        class="inline-flex size-7 items-center justify-center rounded-md text-[#706f6c] transition hover:bg-[#FDFDFC] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:bg-[#0a0a0a] dark:hover:text-[#EDEDEC]"
+                                                    >
+                                                        @include('partials.social-icon', ['icon' => $link['icon'], 'class' => 'size-4'])
+                                                    </a>
                                                 </li>
                                             @endforeach
                                         </ul>

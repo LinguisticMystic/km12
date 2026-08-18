@@ -100,6 +100,8 @@ class EventTest extends TestCase
             'participant_type_id' => $djType->id,
             'name' => 'DJ Alice',
             'bio' => 'Deep house and ambient.',
+            'instagram_url' => 'https://instagram.com/djalice',
+            'website_url' => 'https://djalice.example',
             'image_path' => null,
         ]);
 
@@ -148,6 +150,10 @@ class EventTest extends TestCase
         $response->assertSee('House');
         $response->assertSee('Ambient');
         $response->assertSee('Deep house and ambient.');
+        $response->assertSee('https://instagram.com/djalice', false);
+        $response->assertSee('https://djalice.example', false);
+        $response->assertSee('aria-label="Instagram"', false);
+        $response->assertSee('aria-label="Mājaslapa"', false);
         $response->assertSee('Programma');
         $response->assertSee('Main Stage');
         $response->assertSee('Forest Stage');
