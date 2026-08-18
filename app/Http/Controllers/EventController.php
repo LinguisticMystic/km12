@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class EventController extends Controller
@@ -14,6 +15,13 @@ class EventController extends Controller
             ->get();
 
         return view('events.index', compact('events'));
+    }
+
+    public function redirectFromId(int $id): RedirectResponse
+    {
+        $event = Event::query()->findOrFail($id);
+
+        return redirect()->route('events.show', $event, 301);
     }
 
     public function show(Event $event): View

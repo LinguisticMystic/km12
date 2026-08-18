@@ -28,6 +28,8 @@ class EventResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?string $recordRouteKeyName = 'id';
+
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     protected static ?string $navigationLabel = 'Events';

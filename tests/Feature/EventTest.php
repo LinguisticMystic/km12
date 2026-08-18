@@ -29,7 +29,7 @@ class EventTest extends TestCase
 
     public function test_events_index_lists_events(): void
     {
-        Event::query()->create([
+        $event = Event::query()->create([
             'name' => 'Community Night',
             'date' => now()->addWeek(),
             'description' => 'An evening at KM12.',
@@ -41,6 +41,8 @@ class EventTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Community Night');
+        $response->assertSee('/events/community-night', false);
+        $response->assertSee(route('events.show', $event), false);
         $response->assertDontSee('No events yet');
     }
 
@@ -61,6 +63,106 @@ class EventTest extends TestCase
         $response->assertSee('Learn something new.');
         $response->assertSee('Biļetes');
         $response->assertSee('https://example.com/tickets/workshop');
+    }
+
+    public function test_events_show_uses_a_slug_from_the_event_name(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Saknes un Asni 2026',
+            'date' => now()->addDays(3),
+            'description' => 'A forest gathering.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $this->assertSame('saknes-un-asni-2026', $event->slug);
+        $this->assertStringEndsWith('/events/saknes-un-asni-2026', route('events.show', $event));
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee('Saknes un Asni 2026');
+    }
+
+    public function test_numeric_event_urls_redirect_to_the_slug(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Saknes un Asni 2026',
+            'date' => now()->addDays(3),
+            'description' => 'A forest gathering.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $this->get('/events/'.$event->id)
+            ->assertRedirectToRoute('events.show', $event)
+            ->assertStatus(301);
+    }
+
+    public function test_duplicate_event_names_get_unique_slugs(): void
+    {
+        $first = Event::query()->create([
+            'name' => 'Community Night',
+            'date' => now()->addWeek(),
+            'description' => 'First night.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $second = Event::query()->create([
+            'name' => 'Community Night',
+            'date' => now()->addMonth(),
+            'description' => 'Second night.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $this->assertSame('community-night', $first->slug);
+        $this->assertSame('community-night-2', $second->slug);
+
+        $this->get('/events/community-night')->assertOk()->assertSee('First night.');
+        $this->get('/events/community-night-2')->assertOk()->assertSee('Second night.');
+    }
+
+    public function test_event_slug_updates_when_the_name_changes(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Old Name',
+            'date' => now()->addDays(3),
+            'description' => 'An event.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $this->assertSame('old-name', $event->slug);
+
+        $event->update(['name' => 'Jāņa Čakste 2026']);
+
+        $this->assertSame('jana-cakste-2026', $event->fresh()->slug);
+    }
+
+    public function test_numeric_event_names_do_not_clash_with_id_urls(): void
+    {
+        $event = Event::query()->create([
+            'name' => '2026',
+            'date' => now()->addDays(3),
+            'description' => 'A numbered night.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $this->assertSame('event-2026', $event->slug);
+
+        $this->get('/events/'.$event->id)
+            ->assertRedirectToRoute('events.show', $event)
+            ->assertStatus(301);
+
+        $this->get('/events/event-2026')->assertOk()->assertSee('A numbered night.');
+    }
+
+    public function test_unknown_event_slug_and_id_are_not_found(): void
+    {
+        $this->get('/events/does-not-exist')->assertNotFound();
+        $this->get('/events/999')->assertNotFound();
     }
 
     public function test_events_show_renders_artists_and_schedule(): void

@@ -9,10 +9,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 #[Fillable(['name', 'date', 'description', 'description_en', 'ticket_url', 'poster_path'])]
 class Event extends Model
 {
+    protected static function booted(): void
+    {
+        static::saving(function (Event $event): void {
+            if ($event->isDirty('name') || blank($event->slug)) {
+                $event->slug = static::uniqueSlugFor($event);
+            }
+        });
+    }
+
     /**
      * @return array<string, string>
      */
@@ -21,6 +31,35 @@ class Event extends Model
         return [
             'date' => 'datetime',
         ];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public static function uniqueSlugFor(Event $event): string
+    {
+        $base = Str::slug($event->name);
+
+        if ($base === '' || ctype_digit($base)) {
+            $base = $base === '' ? 'event' : "event-{$base}";
+        }
+
+        $slug = $base;
+        $suffix = 2;
+
+        while (
+            static::query()
+                ->where('slug', $slug)
+                ->when($event->exists, fn (Builder $query) => $query->whereKeyNot($event->getKey()))
+                ->exists()
+        ) {
+            $slug = "{$base}-{$suffix}";
+            $suffix++;
+        }
+
+        return $slug;
     }
 
     /**
