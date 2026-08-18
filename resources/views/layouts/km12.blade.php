@@ -16,7 +16,7 @@
     </head>
     <body class="flex min-h-screen flex-col bg-[#FDFDFC] text-[#1b1b18] antialiased dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
         <header class="absolute inset-x-0 top-0 z-10 p-6 sm:p-8">
-            <div class="mx-auto flex max-w-4xl items-start justify-between gap-6">
+            <div class="mx-auto flex max-w-4xl flex-col-reverse gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                 @include('partials.breadcrumbs')
 
                 <nav class="ml-auto flex shrink-0 items-center gap-4 text-sm">
@@ -53,7 +53,7 @@
             </div>
         </header>
 
-        <main class="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-6 py-24 sm:px-8">
+        <main class="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-6 pb-24 pt-32 sm:px-8 sm:pt-24">
             @yield('content')
         </main>
 

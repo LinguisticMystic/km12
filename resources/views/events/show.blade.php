@@ -45,7 +45,7 @@
                     {{ __('Artists') }}
                 </h2>
 
-                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-start gap-4">
+                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
                     @foreach ($event->artistParticipants as $participant)
                         @include('partials.event-participant-card', ['participant' => $participant])
                     @endforeach
@@ -59,7 +59,7 @@
                     {{ __('Extras') }}
                 </h2>
 
-                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-start gap-4">
+                <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
                     @foreach ($event->extraParticipants as $participant)
                         @include('partials.event-participant-card', ['participant' => $participant])
                     @endforeach
