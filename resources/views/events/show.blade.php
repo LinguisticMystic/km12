@@ -20,17 +20,17 @@
                 {{ localized_date($event->date->timezone(config('app.timezone')), 'l, j F Y · H:i') }}
             </p>
             @if (filled($event->ticket_url))
-                <div class="mt-6">
+                <div class="mt-8">
                     <a
                         href="{{ $event->ticket_url }}"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 rounded-sm border border-[#19140035] px-5 py-2 text-sm font-medium transition hover:border-[#1915014a] dark:border-[#3E3E3A] dark:hover:border-[#62605b]"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#1b1b18] px-6 py-3 text-base font-semibold text-[#FDFDFC] shadow-sm transition hover:bg-black sm:w-auto dark:bg-[#EDEDEC] dark:text-[#1b1b18] dark:hover:bg-white"
                     >
-                        {{ __('Get tickets') }}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
                         </svg>
+                        {{ __('Get tickets') }}
                     </a>
                 </div>
             @endif
