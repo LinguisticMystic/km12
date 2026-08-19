@@ -39,105 +39,67 @@
             </div>
         </div>
 
-        @if ($scheduleByStage->isNotEmpty())
+        @if ($scheduleByDay->isNotEmpty())
             <section id="schedule" class="mt-14" aria-labelledby="schedule-heading">
                 <h2 id="schedule-heading" class="text-2xl font-semibold tracking-tight">
                     {{ __('Schedule') }}
                 </h2>
 
-                <div class="mt-8 space-y-10">
-                    @foreach ($scheduleByStage as $entries)
-                        @php
-                            $stage = $entries->first()?->stage;
-                            $entriesByDay = $entries->groupBy(
-                                fn ($entry) => $entry->date?->toDateString() ?? ''
-                            );
-                        @endphp
-                        <div>
-                            <h3 class="text-lg font-medium">
-                                {{ $stage?->name ?? __('Unassigned') }}
-                            </h3>
-                            <ol class="mt-4 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                @foreach ($entriesByDay as $dayEntries)
-                                    @php
-                                        $allDayEntries = $dayEntries->filter->isAllDay()->values();
-                                        $timedEntries = $dayEntries->reject->isAllDay()->values();
-                                    @endphp
-                                    @if ($dayEntries->first()?->date)
-                                        <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
-                                            <h4 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                                {{ localized_date($dayEntries->first()?->date, 'l, j F') }}
-                                            </h4>
-                                        </li>
-                                    @endif
-                                    @if ($allDayEntries->isNotEmpty())
-                                        <li class="px-5 py-4">
-                                            <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                                                <span class="shrink-0 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] sm:w-28">
-                                                    {{ __('All day') }}
-                                                </span>
-                                                <div class="min-w-0 flex-1">
-                                                    <p class="font-medium text-[#1b1b18] dark:text-[#EDEDEC]">
-                                                        @foreach ($allDayEntries as $entry)
-                                                            @if (! $loop->first)
-                                                                <span class="mx-4 font-normal text-[#706f6c] dark:text-[#A1A09A]">·</span>
-                                                            @endif
-                                                            <a
-                                                                id="schedule-entry-{{ $entry->id }}"
-                                                                href="#participant-{{ $entry->eventParticipant?->id }}"
-                                                                class="schedule-entry scroll-mt-24 rounded-sm transition hover:underline"
-                                                            >
-                                                                {{ $entry->eventParticipant?->displayName() }}
-                                                            </a>
-                                                        @endforeach
-                                                    </p>
-                                                    @foreach ($allDayEntries as $entry)
-                                                        @if (filled($entry->notes))
-                                                            <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                                                {{ $entry->eventParticipant?->displayName() }}: {{ $entry->notes }}
-                                                            </p>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </li>
-                                    @endif
-                                    @foreach ($timedEntries as $entry)
-                                        <li
-                                            id="schedule-entry-{{ $entry->id }}"
-                                            class="schedule-entry scroll-mt-24 px-5 py-4 transition-[background-color,box-shadow] duration-300"
+                <ol class="mt-8 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
+                    @foreach ($scheduleByDay as $dayEntries)
+                        @if ($dayEntries->first()?->date)
+                            <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
+                                <h3 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+                                    {{ localized_date($dayEntries->first()?->date, 'l, j F') }}
+                                </h3>
+                            </li>
+                        @endif
+                        @foreach ($dayEntries as $entry)
+                            <li
+                                id="schedule-entry-{{ $entry->id }}"
+                                class="schedule-entry scroll-mt-24 px-5 py-4 transition-[background-color,box-shadow] duration-300"
+                            >
+                                <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                                    @if ($entry->isAllDay())
+                                        <span class="shrink-0 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] sm:w-28">
+                                            {{ __('All day') }}
+                                        </span>
+                                    @else
+                                        <time
+                                            datetime="{{ $entry->starts_at->format('H:i') }}"
+                                            class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
                                         >
-                                            <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                                                <time
-                                                    datetime="{{ $entry->starts_at->format('H:i') }}"
-                                                    class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
-                                                >
-                                                    {{ $entry->starts_at->format('H:i') }}
-                                                    @if ($entry->ends_at)
-                                                        – {{ $entry->ends_at->format('H:i') }}
-                                                    @endif
-                                                </time>
-                                                <div class="min-w-0 flex-1">
-                                                    <a
-                                                        href="#participant-{{ $entry->eventParticipant?->id }}"
-                                                        class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
-                                                    >
-                                                        {{ $entry->eventParticipant?->displayName() }}
-                                                    </a>
-                                                    @if (filled($entry->notes))
-                                                        <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                                            {{ $entry->notes }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                @endforeach
-                            </ol>
-                        </div>
+                                            {{ $entry->starts_at->format('H:i') }}
+                                            @if ($entry->ends_at)
+                                                – {{ $entry->ends_at->format('H:i') }}
+                                            @endif
+                                        </time>
+                                    @endif
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                                            <a
+                                                href="#participant-{{ $entry->eventParticipant?->id }}"
+                                                class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
+                                            >
+                                                {{ $entry->eventParticipant?->displayName() }}
+                                            </a>
+                                            @if ($entry->stage)
+                                                <span class="inline-flex items-center rounded-full border border-[#e3e3e0] px-2 py-0.5 text-xs font-medium text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                                    {{ $entry->stage->name }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if (filled($entry->notes))
+                                            <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                                                {{ $entry->notes }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
                     @endforeach
-                </div>
+                </ol>
             </section>
         @endif
 

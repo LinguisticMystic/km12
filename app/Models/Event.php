@@ -110,11 +110,11 @@ class Event extends Model
     }
 
     /**
-     * Schedule entries grouped by stage (stage sort_order, then chronological).
+     * Schedule entries grouped by date (chronological, all-day first).
      *
-     * @return Collection<int|string, Collection<int, ScheduleEntry>>
+     * @return Collection<string, Collection<int, ScheduleEntry>>
      */
-    public function scheduleGroupedByStage(): Collection
+    public function scheduleGroupedByDay(): Collection
     {
         if ($this->relationLoaded('participants')) {
             $participants = $this->participants;
@@ -146,14 +146,7 @@ class Event extends Model
 
         return $entries
             ->sortBy(fn (ScheduleEntry $entry): string => $entry->sortKey())
-            ->groupBy(fn (ScheduleEntry $entry): int => (int) $entry->stage_id)
-            ->sortBy(function (Collection $group): string {
-                /** @var ScheduleEntry|null $first */
-                $first = $group->first();
-                $stage = $first?->stage;
-
-                return sprintf('%05d-%s', $stage?->sort_order ?? 99999, $stage?->name ?? '');
-            });
+            ->groupBy(fn (ScheduleEntry $entry): string => $entry->date?->toDateString() ?? '');
     }
 
     public function localizedDescription(): string

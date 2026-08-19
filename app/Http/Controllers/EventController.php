@@ -36,8 +36,8 @@ class EventController extends Controller
             'extraParticipants.scheduleEntries.stage',
         ]);
 
-        $scheduleByStage = $event->scheduleGroupedByStage();
+        $scheduleByDay = $event->scheduleGroupedByDay();
 
-        return view('events.show', compact('event', 'scheduleByStage'));
+        return view('events.show', compact('event', 'scheduleByDay'));
     }
 }

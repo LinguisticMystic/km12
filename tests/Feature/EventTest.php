@@ -265,13 +265,17 @@ class EventTest extends TestCase
         $response->assertSee('https://djalice.example', false);
         $response->assertSee('aria-label="Instagram"', false);
         $response->assertSee('aria-label="Mājaslapa"', false);
-        $response->assertSee('Main Stage');
-        $response->assertSee('Forest Stage');
-        $response->assertSee($friday);
-        $response->assertSee($saturday);
-        $response->assertSee('22:00');
-        $response->assertSee('21:00');
-        $response->assertSee('Late set');
+        $response->assertSeeInOrder([
+            $friday,
+            '22:00',
+            'Main Stage',
+            $saturday,
+            '21:00',
+            'Main Stage',
+            '23:00',
+            'Forest Stage',
+            'Late set',
+        ]);
         $response->assertSee('schedule-entry-', false);
     }
 
@@ -375,7 +379,13 @@ class EventTest extends TestCase
         $response->assertSee('Drinks on the sidelines.');
         $response->assertSee('https://instagram.com/sidelinebar', false);
         $response->assertSee('https://sidelinebar.example', false);
-        $response->assertSee('Techno Stage');
+        $response->assertSeeInOrder([
+            '21:00',
+            'Sideline Bar',
+            'Techno Stage',
+            '22:00',
+            'DJ Alice',
+        ]);
         $response->assertSee('Serving throughout the night');
         $response->assertSee('id="extras-heading"', false);
         $response->assertSee('id="participant-'.$extraAppearance->id.'"', false);
@@ -511,11 +521,15 @@ class EventTest extends TestCase
         $fridayHeading = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
         $saturdayHeading = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
 
-        $response->assertSee('Friday Bar');
-        $response->assertSee('Saturday Bar');
-        $response->assertSee($fridayHeading);
-        $response->assertSee($saturdayHeading);
-        $response->assertSee('Visu dienu');
+        $response->assertSeeInOrder([
+            $fridayHeading,
+            'Visu dienu',
+            'Friday Bar',
+            'Techno Stage',
+            $saturdayHeading,
+            'Visu dienu',
+            'Saturday Bar',
+        ]);
         $response->assertDontSee('00:00');
     }
 
