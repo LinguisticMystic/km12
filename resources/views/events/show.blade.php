@@ -82,7 +82,10 @@
                                         <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                                             <a
                                                 href="#participant-{{ $entry->eventParticipant?->id }}"
-                                                class="font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
+                                                class="js-schedule-link font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
+                                                data-schedule-target="participant-{{ $entry->eventParticipant?->id }}"
+                                                data-schedule-origin="schedule-entry-{{ $entry->id }}"
+                                                data-schedule-back-label="{{ __('Back to schedule') }}"
                                             >
                                                 {{ $entry->eventParticipant?->displayName() }}
                                             </a>

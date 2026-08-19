@@ -277,6 +277,8 @@ class EventTest extends TestCase
             'Late set',
         ]);
         $response->assertSee('schedule-entry-', false);
+        $response->assertSee('data-schedule-origin="schedule-entry-', false);
+        $response->assertSee('data-schedule-back-label="Atpakaļ pie programmas"', false);
     }
 
     public function test_events_show_attaches_after_midnight_sets_to_the_previous_night(): void
@@ -608,6 +610,7 @@ class EventTest extends TestCase
             'Saturday Bar',
         ]);
         $response->assertDontSee('00:00');
+        $response->assertSee('data-schedule-back-label="Atpakaļ pie programmas"', false);
     }
 
     public function test_artists_can_be_reused_across_events_and_persist_after_deletion(): void

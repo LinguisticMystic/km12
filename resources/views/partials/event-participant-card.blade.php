@@ -15,7 +15,7 @@
 @endphp
 <li
     id="participant-{{ $participant->id }}"
-    class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
+    class="flex h-full w-full scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition-[border-color,box-shadow] duration-300 dark:border-[#3E3E3A] dark:bg-[#161615]"
 >
     @if ($profile?->imageUrl())
         <img
