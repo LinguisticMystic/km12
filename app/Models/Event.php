@@ -110,7 +110,10 @@ class Event extends Model
     }
 
     /**
-     * Schedule entries grouped by date (chronological, all-day first).
+     * Schedule entries grouped by program night.
+     *
+     * After-midnight sets (until 06:00) stay on the previous heading;
+     * all-day entries come first, then evening through late night.
      *
      * @return Collection<string, Collection<int, ScheduleEntry>>
      */
@@ -146,7 +149,7 @@ class Event extends Model
 
         return $entries
             ->sortBy(fn (ScheduleEntry $entry): string => $entry->sortKey())
-            ->groupBy(fn (ScheduleEntry $entry): string => $entry->date?->toDateString() ?? '');
+            ->groupBy(fn (ScheduleEntry $entry): string => $entry->programDate()?->toDateString() ?? '');
     }
 
     public function localizedDescription(): string

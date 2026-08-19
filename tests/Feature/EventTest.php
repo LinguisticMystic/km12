@@ -279,6 +279,83 @@ class EventTest extends TestCase
         $response->assertSee('schedule-entry-', false);
     }
 
+    public function test_events_show_attaches_after_midnight_sets_to_the_previous_night(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Forest Gathering',
+            'date' => now()->setDate(2026, 8, 28)->setTime(20, 0),
+            'description' => 'A night in the woods.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $djType = ParticipantType::query()->create([
+            'name' => 'DJ',
+            'sort_order' => 0,
+        ]);
+
+        $mainStage = Stage::query()->create([
+            'name' => 'Main Stage',
+            'sort_order' => 0,
+        ]);
+
+        $alice = Artist::query()->create([
+            'participant_type_id' => $djType->id,
+            'name' => 'DJ Alice',
+            'bio' => 'Deep house and ambient.',
+            'image_path' => null,
+        ]);
+
+        $appearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'artist_id' => $alice->id,
+            'sort_order' => 0,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $appearance->id,
+            'stage_id' => $mainStage->id,
+            'date' => '2026-08-28',
+            'starts_at' => '22:00',
+            'ends_at' => '23:30',
+            'notes' => null,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $appearance->id,
+            'stage_id' => $mainStage->id,
+            'date' => '2026-08-29',
+            'starts_at' => '01:00',
+            'ends_at' => '02:30',
+            'notes' => 'After hours',
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $appearance->id,
+            'stage_id' => $mainStage->id,
+            'date' => '2026-08-29',
+            'starts_at' => '19:00',
+            'ends_at' => '21:00',
+            'notes' => null,
+        ]);
+
+        $response = $this->get(route('events.show', $event));
+
+        $response->assertOk();
+        $timezone = config('app.timezone');
+        $friday = now()->setDate(2026, 8, 28)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
+        $saturday = now()->setDate(2026, 8, 29)->timezone($timezone)->locale('lv')->translatedFormat('l, j. F');
+
+        $response->assertSeeInOrder([
+            $friday,
+            '22:00',
+            '01:00',
+            'After hours',
+            $saturday,
+            '19:00',
+        ]);
+    }
+
     public function test_events_show_hides_empty_artist_sections(): void
     {
         $event = Event::query()->create([

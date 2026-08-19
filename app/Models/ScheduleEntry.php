@@ -5,10 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 #[Fillable(['event_participant_id', 'stage_id', 'date', 'starts_at', 'ends_at', 'notes'])]
 class ScheduleEntry extends Model
 {
+    /**
+     * Sets that start before this hour belong to the previous night's lineup.
+     */
+    public const NIGHT_ENDS_AT_HOUR = 6;
+
     protected static function booted(): void
     {
         static::saving(function (ScheduleEntry $entry): void {
@@ -51,12 +57,44 @@ class ScheduleEntry extends Model
         return $this->starts_at === null;
     }
 
+    /**
+     * After-midnight sets (00:00–05:59) continue the previous evening.
+     */
+    public function belongsToPreviousNight(): bool
+    {
+        return $this->starts_at !== null
+            && $this->starts_at->hour < self::NIGHT_ENDS_AT_HOUR;
+    }
+
+    public function programDate(): ?Carbon
+    {
+        if ($this->date === null) {
+            return null;
+        }
+
+        return $this->belongsToPreviousNight()
+            ? $this->date->copy()->subDay()
+            : $this->date->copy();
+    }
+
     public function sortKey(): string
     {
+        $time = '';
+
+        if ($this->starts_at !== null) {
+            $hour = $this->starts_at->hour;
+
+            if ($this->belongsToPreviousNight()) {
+                $hour += 24;
+            }
+
+            $time = sprintf('%02d:%s', $hour, $this->starts_at->format('i:s'));
+        }
+
         return sprintf(
             '%s-%s',
-            $this->date?->toDateString() ?? '',
-            $this->starts_at?->format('H:i:s') ?? '',
+            $this->programDate()?->toDateString() ?? '',
+            $time,
         );
     }
 }

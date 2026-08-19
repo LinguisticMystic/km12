@@ -47,10 +47,13 @@
 
                 <ol class="mt-8 divide-y divide-[#e3e3e0] overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white dark:divide-[#3E3E3A] dark:border-[#3E3E3A] dark:bg-[#161615]">
                     @foreach ($scheduleByDay as $dayEntries)
-                        @if ($dayEntries->first()?->date)
+                        @php
+                            $programDate = $dayEntries->first()?->programDate();
+                        @endphp
+                        @if ($programDate)
                             <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
                                 <h3 class="text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
-                                    {{ localized_date($dayEntries->first()?->date, 'l, j F') }}
+                                    {{ localized_date($programDate, 'l, j F') }}
                                 </h3>
                             </li>
                         @endif
