@@ -97,4 +97,39 @@ class ScheduleEntry extends Model
             $time,
         );
     }
+
+    /**
+     * When this row finishes, including overnight sets that end after midnight.
+     */
+    public function finishesAt(): ?Carbon
+    {
+        if ($this->date === null) {
+            return null;
+        }
+
+        if ($this->isAllDay()) {
+            return $this->date->copy()->endOfDay();
+        }
+
+        $start = $this->date->copy()->setTimeFrom($this->starts_at);
+
+        if ($this->ends_at === null) {
+            return $start;
+        }
+
+        $end = $this->date->copy()->setTimeFrom($this->ends_at);
+
+        if ($end->lt($start)) {
+            $end->addDay();
+        }
+
+        return $end;
+    }
+
+    public function isUpcoming(?Carbon $at = null): bool
+    {
+        $at ??= now();
+
+        return $this->finishesAt()?->gte($at) ?? false;
+    }
 }

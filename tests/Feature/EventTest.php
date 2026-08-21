@@ -700,5 +700,120 @@ class EventTest extends TestCase
         $response->assertSee(route('events.index'), false);
         $response->assertSee('Pasākumi');
         $response->assertDontSee('Door opener');
+        $response->assertDontSee('Gaidāmais pasākums');
+        $response->assertDontSee('Gaidāmie pasākumi');
+    }
+
+    public function test_home_page_lists_upcoming_events_and_hides_past_ones(): void
+    {
+        $this->travelTo('2026-08-21 12:00:00');
+
+        Event::query()->create([
+            'name' => 'Forest Gathering',
+            'date' => '2026-08-28 20:00:00',
+            'description' => 'A night in the woods.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        Event::query()->create([
+            'name' => 'Last Week Social',
+            'date' => '2026-08-10 20:00:00',
+            'description' => 'Already happened.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Gaidāmais pasākums');
+        $response->assertDontSee('Gaidāmie pasākumi');
+        $response->assertSee('Forest Gathering');
+        $response->assertSee('/events/forest-gathering', false);
+        $response->assertDontSee('Last Week Social');
+    }
+
+    public function test_home_page_uses_the_plural_heading_for_multiple_upcoming_events(): void
+    {
+        $this->travelTo('2026-08-21 12:00:00');
+
+        Event::query()->create([
+            'name' => 'Forest Gathering',
+            'date' => '2026-08-28 20:00:00',
+            'description' => 'A night in the woods.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        Event::query()->create([
+            'name' => 'Community Night',
+            'date' => '2026-09-04 20:00:00',
+            'description' => 'Another evening.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Gaidāmie pasākumi')
+            ->assertDontSee('Gaidāmais pasākums')
+            ->assertSee('Forest Gathering')
+            ->assertSee('Community Night');
+    }
+
+    public function test_home_page_keeps_an_event_visible_while_schedule_rows_remain(): void
+    {
+        $this->travelTo('2026-08-29 12:00:00');
+
+        $event = Event::query()->create([
+            'name' => 'Forest Gathering',
+            'date' => '2026-08-28 18:00:00',
+            'description' => 'A night in the woods.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $type = ParticipantType::query()->create([
+            'name' => 'DJ',
+            'sort_order' => 0,
+        ]);
+
+        $artist = Artist::query()->create([
+            'participant_type_id' => $type->id,
+            'name' => 'DJ Alice',
+            'bio' => 'Deep house.',
+            'image_path' => null,
+        ]);
+
+        $stage = Stage::query()->create([
+            'name' => 'Main Stage',
+            'sort_order' => 0,
+        ]);
+
+        $appearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'artist_id' => $artist->id,
+            'sort_order' => 0,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $appearance->id,
+            'stage_id' => $stage->id,
+            'date' => '2026-08-29',
+            'starts_at' => '21:00',
+            'ends_at' => '23:00',
+            'notes' => null,
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Forest Gathering');
+
+        $this->travelTo('2026-08-29 23:00:01');
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('Forest Gathering');
     }
 }

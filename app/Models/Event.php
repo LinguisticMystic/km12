@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -178,5 +179,48 @@ class Event extends Model
         return $query
             ->orderByRaw('(date < ?) asc', [now()])
             ->orderBy('date');
+    }
+
+    /**
+     * True while the event date is still ahead, or a schedule row has not finished.
+     */
+    public function isUpcoming(?Carbon $at = null): bool
+    {
+        $at ??= now();
+
+        if ($this->date->toDateString() >= $at->toDateString()) {
+            return true;
+        }
+
+        $entries = $this->relationLoaded('scheduleEntries')
+            ? $this->scheduleEntries
+            : $this->scheduleEntries()->get();
+
+        return $entries->contains(
+            fn (ScheduleEntry $entry): bool => $entry->isUpcoming($at),
+        );
+    }
+
+    /**
+     * Events that have not finished yet, soonest first.
+     *
+     * @return Collection<int, Event>
+     */
+    public static function upcoming(?Carbon $at = null): Collection
+    {
+        $at ??= now();
+
+        return static::query()
+            ->where(function (Builder $query) use ($at) {
+                $query->whereDate('date', '>=', $at->toDateString())
+                    ->orWhereHas('scheduleEntries', function (Builder $query) use ($at) {
+                        $query->where('date', '>=', $at->copy()->subDay()->toDateString());
+                    });
+            })
+            ->with('scheduleEntries')
+            ->orderBy('date')
+            ->get()
+            ->filter(fn (Event $event): bool => $event->isUpcoming($at))
+            ->values();
     }
 }

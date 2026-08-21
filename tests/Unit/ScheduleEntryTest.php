@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Event;
 use App\Models\EventParticipant;
 use App\Models\ScheduleEntry;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class ScheduleEntryTest extends TestCase
@@ -97,5 +98,56 @@ class ScheduleEntryTest extends TestCase
             ['19:00'],
             $grouped['2026-08-29']->map(fn (ScheduleEntry $entry) => $entry->starts_at->format('H:i'))->values()->all(),
         );
+    }
+
+    public function test_all_day_rows_finish_at_the_end_of_their_date(): void
+    {
+        $entry = new ScheduleEntry([
+            'date' => '2026-08-29',
+            'starts_at' => null,
+        ]);
+
+        $this->assertSame('2026-08-29 23:59:59', $entry->finishesAt()?->format('Y-m-d H:i:s'));
+        $this->assertTrue($entry->isUpcoming(Carbon::parse('2026-08-29 18:00:00')));
+        $this->assertFalse($entry->isUpcoming(Carbon::parse('2026-08-30 00:00:00')));
+    }
+
+    public function test_overnight_rows_finish_on_the_following_morning(): void
+    {
+        $entry = new ScheduleEntry([
+            'date' => '2026-08-28',
+            'starts_at' => '23:00',
+            'ends_at' => '01:00',
+        ]);
+
+        $this->assertSame('2026-08-29 01:00:00', $entry->finishesAt()?->format('Y-m-d H:i:s'));
+        $this->assertTrue($entry->isUpcoming(Carbon::parse('2026-08-29 00:30:00')));
+        $this->assertFalse($entry->isUpcoming(Carbon::parse('2026-08-29 01:00:01')));
+    }
+
+    public function test_event_stays_upcoming_until_its_date_or_last_schedule_row_finishes(): void
+    {
+        $event = new Event([
+            'date' => '2026-08-28 18:00:00',
+        ]);
+        $event->setRelation('scheduleEntries', collect([
+            new ScheduleEntry([
+                'date' => '2026-08-29',
+                'starts_at' => '21:00',
+                'ends_at' => '23:00',
+            ]),
+        ]));
+
+        $this->assertTrue($event->isUpcoming(Carbon::parse('2026-08-27 12:00:00')));
+        $this->assertTrue($event->isUpcoming(Carbon::parse('2026-08-29 12:00:00')));
+        $this->assertFalse($event->isUpcoming(Carbon::parse('2026-08-29 23:00:01')));
+
+        $withoutSchedule = new Event([
+            'date' => '2026-08-28 18:00:00',
+        ]);
+        $withoutSchedule->setRelation('scheduleEntries', collect());
+
+        $this->assertTrue($withoutSchedule->isUpcoming(Carbon::parse('2026-08-28 22:00:00')));
+        $this->assertFalse($withoutSchedule->isUpcoming(Carbon::parse('2026-08-29 00:00:00')));
     }
 }

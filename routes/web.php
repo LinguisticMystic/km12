@@ -4,10 +4,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DoorOpenerController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LocaleController;
+use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'upcomingEvents' => Event::upcoming(),
+    ]);
 })->name('home');
 
 Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
