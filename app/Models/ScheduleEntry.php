@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
-#[Fillable(['event_participant_id', 'stage_id', 'date', 'starts_at', 'ends_at', 'notes'])]
+#[Fillable(['event_participant_id', 'stage_id', 'date', 'starts_at', 'ends_at', 'notes', 'notes_en'])]
 class ScheduleEntry extends Model
 {
     /**
@@ -131,5 +131,12 @@ class ScheduleEntry extends Model
         $at ??= now();
 
         return $this->finishesAt()?->gte($at) ?? false;
+    }
+
+    public function localizedNotes(): ?string
+    {
+        $notes = localized_text($this->notes, $this->notes_en);
+
+        return $notes === '' ? null : $notes;
     }
 }

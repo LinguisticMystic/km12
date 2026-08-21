@@ -25,7 +25,10 @@ class EventLookupsSeeder extends Seeder
         foreach ($types as $index => $name) {
             ParticipantType::query()->updateOrCreate(
                 ['name' => $name],
-                ['sort_order' => $index],
+                [
+                    'name_en' => $name,
+                    'sort_order' => $index,
+                ],
             );
         }
 
@@ -64,7 +67,10 @@ class EventLookupsSeeder extends Seeder
         foreach ($stages as $index => $name) {
             Stage::query()->updateOrCreate(
                 ['name' => $name],
-                ['sort_order' => $index],
+                [
+                    'name_en' => $name,
+                    'sort_order' => $index,
+                ],
             );
         }
     }

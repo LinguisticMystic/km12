@@ -40,6 +40,11 @@ class ScheduleEntriesRepeater
                     ->seconds(false)
                     ->nullable(),
                 Textarea::make('notes')
+                    ->label('Notes (LV)')
+                    ->rows(2)
+                    ->columnSpanFull(),
+                Textarea::make('notes_en')
+                    ->label('Notes (EN)')
                     ->rows(2)
                     ->columnSpanFull(),
             ])

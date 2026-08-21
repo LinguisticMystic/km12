@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Extras;
 use App\Filament\Resources\Extras\Pages\CreateExtra;
 use App\Filament\Resources\Extras\Pages\EditExtra;
 use App\Filament\Resources\Extras\Pages\ListExtras;
+use App\Filament\Resources\ExtraTypes\ExtraTypeResource;
 use App\Models\Extra;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -50,12 +51,7 @@ class ExtraResource extends Resource
                 ->required()
                 ->searchable()
                 ->preload()
-                ->createOptionForm([
-                    TextInput::make('name')
-                        ->required()
-                        ->maxLength(255)
-                        ->unique(),
-                ]),
+                ->createOptionForm(ExtraTypeResource::formComponents()),
             Textarea::make('bio')
                 ->label('Short bio (LV)')
                 ->rows(4)

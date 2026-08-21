@@ -3,8 +3,8 @@
     $profile = $isExtra ? $participant->extra : $participant->artist;
     $bio = $profile?->localizedBio();
     $typeName = $isExtra
-        ? $profile?->extraType?->name
-        : $profile?->participantType?->name;
+        ? $profile?->extraType?->localizedName()
+        : $profile?->participantType?->localizedName();
     $meta = collect([$typeName])
         ->merge($isExtra ? [] : ($profile?->genres?->pluck('name') ?? []))
         ->filter();
@@ -96,7 +96,7 @@
                                         ·
                                     @endif
                                 @endunless
-                                {{ $entry->stage?->name }}
+                                {{ $entry->stage?->localizedName() }}
                             </span>
                         </a>
                     </li>

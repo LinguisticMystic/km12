@@ -39,9 +39,13 @@ class ParticipantTypeResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Name (LV)')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
+                TextInput::make('name_en')
+                    ->label('Name (EN)')
+                    ->maxLength(255),
             ]);
     }
 

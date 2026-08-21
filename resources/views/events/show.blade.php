@@ -85,12 +85,12 @@
                                                 </a>
                                                 @if ($entry->stage)
                                                     <span class="inline-flex items-center rounded-full border border-[#e3e3e0] px-2 py-0.5 text-xs font-medium text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
-                                                        {{ $entry->stage->name }}
+                                                        {{ $entry->stage->localizedName() }}
                                                     </span>
                                                 @endif
-                                                @if (filled($entry->notes))
+                                                @if (filled($entry->localizedNotes()))
                                                     <span class="text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                                        {{ $entry->notes }}
+                                                        {{ $entry->localizedNotes() }}
                                                     </span>
                                                 @endif
                                             </span>
@@ -127,13 +127,13 @@
                                             </a>
                                             @if ($entry->stage)
                                                 <span class="inline-flex items-center rounded-full border border-[#e3e3e0] px-2 py-0.5 text-xs font-medium text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
-                                                    {{ $entry->stage->name }}
+                                                    {{ $entry->stage->localizedName() }}
                                                 </span>
                                             @endif
                                         </div>
-                                        @if (filled($entry->notes))
+                                        @if (filled($entry->localizedNotes()))
                                             <p class="mt-0.5 text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                                                {{ $entry->notes }}
+                                                {{ $entry->localizedNotes() }}
                                             </p>
                                         @endif
                                     </div>

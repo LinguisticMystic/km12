@@ -5,7 +5,11 @@ namespace Tests\Feature;
 use App\Models\Artist;
 use App\Models\Event;
 use App\Models\EventParticipant;
+use App\Models\Extra;
+use App\Models\ExtraType;
 use App\Models\ParticipantType;
+use App\Models\ScheduleEntry;
+use App\Models\Stage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -117,6 +121,111 @@ class LocaleTest extends TestCase
         $this->get(route('events.show', $event))
             ->assertOk()
             ->assertSee('Tikai latviski.');
+    }
+
+    public function test_stage_type_and_notes_follow_the_active_locale(): void
+    {
+        $event = Event::query()->create([
+            'name' => 'Workshop',
+            'date' => now()->setDate(2026, 8, 28)->setTime(20, 0),
+            'description' => 'Apraksts.',
+            'ticket_url' => null,
+            'poster_path' => null,
+        ]);
+
+        $djType = ParticipantType::query()->create([
+            'name' => 'Dzīvā mūzika',
+            'name_en' => 'Live musician',
+            'sort_order' => 0,
+        ]);
+
+        $barType = ExtraType::query()->create([
+            'name' => 'Tējas telts',
+            'name_en' => 'Tea tent',
+            'sort_order' => 0,
+        ]);
+
+        $stage = Stage::query()->create([
+            'name' => 'Galvenā skatuve',
+            'name_en' => 'Main Stage',
+            'sort_order' => 0,
+        ]);
+
+        $artist = Artist::query()->create([
+            'participant_type_id' => $djType->id,
+            'name' => 'DJ Alice',
+            'bio' => 'Biogrāfija.',
+            'image_path' => null,
+        ]);
+
+        $bar = Extra::query()->create([
+            'extra_type_id' => $barType->id,
+            'name' => 'Sideline Bar',
+            'bio' => 'Dzērieni.',
+            'image_path' => null,
+        ]);
+
+        $artistAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'artist_id' => $artist->id,
+            'sort_order' => 0,
+        ]);
+
+        $extraAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'extra_id' => $bar->id,
+            'sort_order' => 1,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $artistAppearance->id,
+            'stage_id' => $stage->id,
+            'date' => '2026-08-28',
+            'starts_at' => '22:00',
+            'ends_at' => '23:00',
+            'notes' => 'Vēlais sets',
+            'notes_en' => 'Late set',
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $extraAppearance->id,
+            'stage_id' => $stage->id,
+            'date' => '2026-08-28',
+            'starts_at' => '21:00',
+            'ends_at' => '02:00',
+            'notes' => 'Strādā visu nakti',
+            'notes_en' => 'Open all night',
+        ]);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee('Dzīvā mūzika')
+            ->assertSee('Tējas telts')
+            ->assertSee('Galvenā skatuve')
+            ->assertSee('Vēlais sets')
+            ->assertSee('Strādā visu nakti')
+            ->assertDontSee('Live musician')
+            ->assertDontSee('Tea tent')
+            ->assertDontSee('Main Stage')
+            ->assertDontSee('Late set')
+            ->assertDontSee('Open all night');
+
+        $this->from(route('events.show', $event))
+            ->post(route('locale.update'), ['locale' => 'en'])
+            ->assertRedirect(route('events.show', $event));
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee('Live musician')
+            ->assertSee('Tea tent')
+            ->assertSee('Main Stage')
+            ->assertSee('Late set')
+            ->assertSee('Open all night')
+            ->assertDontSee('Dzīvā mūzika')
+            ->assertDontSee('Tējas telts')
+            ->assertDontSee('Galvenā skatuve')
+            ->assertDontSee('Vēlais sets')
+            ->assertDontSee('Strādā visu nakti');
     }
 
     public function test_event_dates_use_a_period_after_the_day_in_latvian_only(): void
