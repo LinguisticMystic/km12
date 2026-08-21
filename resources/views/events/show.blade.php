@@ -65,10 +65,10 @@
                                     <span class="shrink-0 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] sm:w-28">
                                         {{ __('All day') }}
                                     </span>
-                                    <div class="flex min-w-0 flex-1 flex-wrap items-baseline gap-y-1">
+                                    <div class="flex min-w-0 flex-1 flex-col items-start gap-y-1 sm:flex-row sm:flex-wrap sm:items-baseline">
                                         @foreach ($allDayEntries as $entry)
                                             @unless ($loop->first)
-                                                <span class="select-none px-2.5 text-[#706f6c] dark:text-[#A1A09A]" aria-hidden="true">·</span>
+                                                <span class="hidden select-none px-2.5 text-[#706f6c] sm:inline dark:text-[#A1A09A]" aria-hidden="true">·</span>
                                             @endunless
                                             <span
                                                 id="schedule-entry-{{ $entry->id }}"
