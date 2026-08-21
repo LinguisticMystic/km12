@@ -49,6 +49,8 @@
                     @foreach ($scheduleByDay as $dayEntries)
                         @php
                             $programDate = $dayEntries->first()?->programDate();
+                            $allDayEntries = $dayEntries->filter->isAllDay();
+                            $timedEntries = $dayEntries->reject->isAllDay();
                         @endphp
                         @if ($programDate)
                             <li class="bg-[#FDFDFC] px-5 py-2.5 dark:bg-[#0a0a0a]">
@@ -57,27 +59,61 @@
                                 </h3>
                             </li>
                         @endif
-                        @foreach ($dayEntries as $entry)
+                        @if ($allDayEntries->isNotEmpty())
+                            <li class="px-5 py-4">
+                                <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                                    <span class="shrink-0 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] sm:w-28">
+                                        {{ __('All day') }}
+                                    </span>
+                                    <div class="flex min-w-0 flex-1 flex-wrap items-baseline gap-y-1">
+                                        @foreach ($allDayEntries as $entry)
+                                            @unless ($loop->first)
+                                                <span class="select-none px-2.5 text-[#706f6c] dark:text-[#A1A09A]" aria-hidden="true">·</span>
+                                            @endunless
+                                            <span
+                                                id="schedule-entry-{{ $entry->id }}"
+                                                class="schedule-entry schedule-entry-compact inline-flex scroll-mt-24 items-baseline gap-x-2.5 rounded-md px-1 py-0.5 -mx-1 transition-[background-color,box-shadow] duration-300"
+                                            >
+                                                <a
+                                                    href="#participant-{{ $entry->eventParticipant?->id }}"
+                                                    class="js-schedule-link font-medium text-[#1b1b18] transition hover:underline dark:text-[#EDEDEC]"
+                                                    data-schedule-target="participant-{{ $entry->eventParticipant?->id }}"
+                                                    data-schedule-origin="schedule-entry-{{ $entry->id }}"
+                                                    data-schedule-back-label="{{ __('Back to schedule') }}"
+                                                >
+                                                    {{ $entry->eventParticipant?->displayName() }}
+                                                </a>
+                                                @if ($entry->stage)
+                                                    <span class="inline-flex items-center rounded-full border border-[#e3e3e0] px-2 py-0.5 text-xs font-medium text-[#706f6c] dark:border-[#3E3E3A] dark:text-[#A1A09A]">
+                                                        {{ $entry->stage->name }}
+                                                    </span>
+                                                @endif
+                                                @if (filled($entry->notes))
+                                                    <span class="text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                                                        {{ $entry->notes }}
+                                                    </span>
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </li>
+                        @endif
+                        @foreach ($timedEntries as $entry)
                             <li
                                 id="schedule-entry-{{ $entry->id }}"
                                 class="schedule-entry scroll-mt-24 px-5 py-4 transition-[background-color,box-shadow] duration-300"
                             >
                                 <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                                    @if ($entry->isAllDay())
-                                        <span class="shrink-0 text-sm font-medium text-[#706f6c] dark:text-[#A1A09A] sm:w-28">
-                                            {{ __('All day') }}
-                                        </span>
-                                    @else
-                                        <time
-                                            datetime="{{ $entry->starts_at->format('H:i') }}"
-                                            class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
-                                        >
-                                            {{ $entry->starts_at->format('H:i') }}
-                                            @if ($entry->ends_at)
-                                                – {{ $entry->ends_at->format('H:i') }}
-                                            @endif
-                                        </time>
-                                    @endif
+                                    <time
+                                        datetime="{{ $entry->starts_at->format('H:i') }}"
+                                        class="shrink-0 text-sm font-medium tabular-nums text-[#706f6c] dark:text-[#A1A09A] sm:w-28"
+                                    >
+                                        {{ $entry->starts_at->format('H:i') }}
+                                        @if ($entry->ends_at)
+                                            – {{ $entry->ends_at->format('H:i') }}
+                                        @endif
+                                    </time>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                                             <a

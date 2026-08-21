@@ -556,6 +556,13 @@ class EventTest extends TestCase
             'image_path' => null,
         ]);
 
+        $fridayCafe = Extra::query()->create([
+            'extra_type_id' => $barType->id,
+            'name' => 'Friday Cafe',
+            'bio' => 'Also open on Friday.',
+            'image_path' => null,
+        ]);
+
         $saturdayBar = Extra::query()->create([
             'extra_type_id' => $barType->id,
             'name' => 'Saturday Bar',
@@ -569,14 +576,29 @@ class EventTest extends TestCase
             'sort_order' => 0,
         ]);
 
+        $fridayCafeAppearance = EventParticipant::query()->create([
+            'event_id' => $event->id,
+            'extra_id' => $fridayCafe->id,
+            'sort_order' => 1,
+        ]);
+
         $saturdayAppearance = EventParticipant::query()->create([
             'event_id' => $event->id,
             'extra_id' => $saturdayBar->id,
-            'sort_order' => 1,
+            'sort_order' => 2,
         ]);
 
         ScheduleEntry::query()->create([
             'event_participant_id' => $fridayAppearance->id,
+            'stage_id' => $technoStage->id,
+            'date' => '2026-08-28',
+            'starts_at' => null,
+            'ends_at' => null,
+            'notes' => null,
+        ]);
+
+        ScheduleEntry::query()->create([
+            'event_participant_id' => $fridayCafeAppearance->id,
             'stage_id' => $technoStage->id,
             'date' => '2026-08-28',
             'starts_at' => null,
@@ -605,10 +627,12 @@ class EventTest extends TestCase
             'Visu dienu',
             'Friday Bar',
             'Techno Stage',
+            'Friday Cafe',
             $saturdayHeading,
             'Visu dienu',
             'Saturday Bar',
         ]);
+        $this->assertSame(2, substr_count($response->getContent(), 'Visu dienu'));
         $response->assertDontSee('00:00');
         $response->assertSee('data-schedule-back-label="Atpakaļ pie programmas"', false);
     }
