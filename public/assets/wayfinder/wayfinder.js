@@ -274,11 +274,20 @@ function appendRoomLabel(g, obj) {
     group.appendChild(text);
     g.appendChild(group);
 
-    var bb = text.getBBox();
-    bg.setAttribute("x", String(bb.x - 4));
-    bg.setAttribute("y", String(bb.y - 2));
-    bg.setAttribute("width", String(bb.width + 8));
-    bg.setAttribute("height", String(bb.height + 4));
+    try {
+        var bb = text.getBBox();
+        bg.setAttribute("x", String(bb.x - 4));
+        bg.setAttribute("y", String(bb.y - 2));
+        bg.setAttribute("width", String(bb.width + 8));
+        bg.setAttribute("height", String(bb.height + 4));
+    } catch (e) {
+        var x = toDisplayX(tl.x + pad + offsetX);
+        var y = toDisplayY(tl.y + pad + fontSize + 1 + offsetY);
+        bg.setAttribute("x", String(x - 4));
+        bg.setAttribute("y", String(y - fontSize - 2));
+        bg.setAttribute("width", String(label.length * fontSize * 0.62 + 8));
+        bg.setAttribute("height", String(fontSize + 6));
+    }
     bg.setAttribute("rx", "3");
 }
 
@@ -634,6 +643,7 @@ function nearestOnGridForRoom(g, aimMapX, aimMapY, mapBounds) {
 
 var tiledMapData = null;
 var currentFloor = null;
+var floorLoadGeneration = 0;
 var floorImageCache = {};
 var floorImagesLoaded = {};
 var floorJsonCache = {};
@@ -707,10 +717,6 @@ function isImageUrlMatch(img, imageUrl) {
     }
 }
 
-function isFloorImageReady(imageUrl) {
-    return !!floorImagesLoaded[imageUrl];
-}
-
 function ensureFloorImage(imageUrl) {
     if (floorImageCache[imageUrl]) {
         return floorImageCache[imageUrl];
@@ -750,53 +756,117 @@ function prefetchAllFloors() {
     });
 }
 
-function applyFloorImageToDom(imageUrl) {
+function isDomImageShowing(imageUrl) {
     var img = document.getElementById("floor-img");
-    if (!img) return;
-    if (!isImageUrlMatch(img, imageUrl)) {
-        img.src = imageUrl;
-    }
-    setMapImageReady();
+    return !!(img && isImageUrlMatch(img, imageUrl) && img.complete && img.naturalWidth);
+}
+
+/** Wait until the visible <img> has this URL loaded — preload Image.complete is not enough. */
+function waitForDomImage(img, imageUrl, generation) {
+    return new Promise(function (resolve, reject) {
+        var settled = false;
+
+        function cleanup() {
+            img.removeEventListener("load", onLoad);
+            img.removeEventListener("error", onError);
+        }
+
+        function finish(ok) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            if (generation !== floorLoadGeneration) {
+                resolve(null);
+                return;
+            }
+            if (ok) resolve(img);
+            else reject(new Error("image load failed"));
+        }
+
+        function onLoad() {
+            finish(true);
+        }
+
+        function onError() {
+            finish(false);
+        }
+
+        if (generation !== floorLoadGeneration) {
+            resolve(null);
+            return;
+        }
+
+        img.addEventListener("load", onLoad);
+        img.addEventListener("error", onError);
+
+        if (!isImageUrlMatch(img, imageUrl)) {
+            img.src = imageUrl;
+        }
+
+        if (isImageUrlMatch(img, imageUrl) && img.complete) {
+            if (img.naturalWidth) finish(true);
+            else finish(false);
+        }
+    }).then(function (readyImg) {
+        if (!readyImg || generation !== floorLoadGeneration) return null;
+        if (typeof readyImg.decode === "function") {
+            return readyImg.decode().then(function () {
+                return generation === floorLoadGeneration ? readyImg : null;
+            }).catch(function () {
+                return generation === floorLoadGeneration ? readyImg : null;
+            });
+        }
+        return readyImg;
+    });
+}
+
+function applyFloorImageToDom(imageUrl, generation) {
+    var img = document.getElementById("floor-img");
+    if (!img) return Promise.resolve(null);
+    return waitForDomImage(img, imageUrl, generation).then(function (readyImg) {
+        if (!readyImg || generation !== floorLoadGeneration) return null;
+        setMapImageReady();
+        return readyImg;
+    });
 }
 
 function switchFloor(floor) {
     if (!floor) return;
     if (currentFloor && currentFloor.id === floor.id) return;
 
-    var floorId = floor.id;
     var imageUrl = floor.image;
     var jsonUrl = floor.json;
+    var generation = ++floorLoadGeneration;
 
     currentFloor = floor;
     setActiveFloorTab(floor.id);
     tiledMapData = null;
     clearMapState();
 
-    if (!isFloorImageReady(imageUrl)) {
+    if (!isDomImageShowing(imageUrl)) {
         setMapImageLoading(true);
+        var img = document.getElementById("floor-img");
+        if (img) img.classList.remove("is-ready");
     }
 
-    ensureFloorImage(imageUrl)
-        .then(function () {
-            if (!currentFloor || currentFloor.id !== floorId) return;
-            applyFloorImageToDom(imageUrl);
+    Promise.all([
+        ensureFloorImage(imageUrl).then(function () {
+            if (generation !== floorLoadGeneration) return null;
+            return applyFloorImageToDom(imageUrl, generation);
+        }),
+        getFloorJson(jsonUrl)
+    ])
+        .then(function (results) {
+            if (generation !== floorLoadGeneration) return;
+            var map = results[1];
+            tiledMapData = map && validateTiledMap(map, true) ? map : null;
             onFloorImageReady();
         })
         .catch(function () {
-            if (!currentFloor || currentFloor.id !== floorId) return;
+            if (generation !== floorLoadGeneration) return;
             setMapImageLoading(false);
             setStatus("Could not load floor plan image.", true);
         });
-
-    getFloorJson(jsonUrl).then(function (map) {
-        if (!currentFloor || currentFloor.id !== floorId) return;
-        if (map && validateTiledMap(map, true)) {
-            tiledMapData = map;
-        } else {
-            tiledMapData = null;
-        }
-        onFloorImageReady();
-    });
 }
 
 function onFloorImageReady() {

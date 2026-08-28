@@ -10,6 +10,8 @@ class WayfinderController extends Controller
     public function __invoke(): View
     {
         $base = asset(config('wayfinder.assets_path'));
+        $scriptPath = public_path(config('wayfinder.assets_path').'/wayfinder.js');
+        $scriptVersion = is_file($scriptPath) ? filemtime($scriptPath) : time();
 
         $floors = collect(config('wayfinder.floors', []))
             ->map(fn (array $floor) => [
@@ -25,7 +27,7 @@ class WayfinderController extends Controller
             'mapAssets' => [
                 'floors' => $floors,
             ],
-            'scriptUrl' => $base.'/wayfinder.js',
+            'scriptUrl' => $base.'/wayfinder.js?v='.$scriptVersion,
         ]);
     }
 }
