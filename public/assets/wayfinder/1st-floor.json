@@ -529,6 +529,24 @@
                  "width":93,
                  "x":634,
                  "y":383
+                }, 
+                {
+                 "height":128,
+                 "id":80,
+                 "name":"Aizsaule",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelFontSize",
+                         "type":"float",
+                         "value":10
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":28,
+                 "x":93.5,
+                 "y":593
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -896,7 +914,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":80,
+ "nextobjectid":81,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",
