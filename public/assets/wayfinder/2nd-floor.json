@@ -519,6 +519,36 @@
                  "width":0,
                  "x":180,
                  "y":-192
+                }, 
+                {
+                 "height":128,
+                 "id":121,
+                 "name":"Boksa zāle",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelFontSize",
+                         "type":"float",
+                         "value":10
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":28,
+                 "x":93.5,
+                 "y":593
+                }, 
+                {
+                 "height":140,
+                 "id":122,
+                 "name":"Kabata",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":82,
+                 "x":251.5,
+                 "y":213
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -828,7 +858,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":121,
+ "nextobjectid":123,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

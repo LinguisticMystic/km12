@@ -176,7 +176,7 @@
                 {
                  "height":0,
                  "id":8,
-                 "name":"S1-2",
+                 "name":"Virtuve",
                  "opacity":1,
                  "polygon":[
                         {
@@ -207,7 +207,7 @@
                         {
                          "name":"hideRoom",
                          "type":"bool",
-                         "value":true
+                         "value":false
                         }],
                  "rotation":0,
                  "type":"",
@@ -547,6 +547,24 @@
                  "width":28,
                  "x":93.5,
                  "y":593
+                }, 
+                {
+                 "height":214,
+                 "id":81,
+                 "name":"Garderobe",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"labelFontSize",
+                         "type":"float",
+                         "value":10
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":51.5,
+                 "x":93.5,
+                 "y":721
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -914,7 +932,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":81,
+ "nextobjectid":82,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",
