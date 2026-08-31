@@ -80,6 +80,18 @@
         </a>
 
         <a
+            href="{{ route('galleries.index') }}"
+            class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
+        >
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFC] text-[#1b1b18] transition group-hover:scale-105 sm:size-14 dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-7 sm:size-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A1.5 1.5 0 0 0 21.75 19.5V6A1.5 1.5 0 0 0 20.25 4.5H3.75A1.5 1.5 0 0 0 2.25 6v13.5A1.5 1.5 0 0 0 3.75 21Zm10.5-11.25h.008v.008h-.008V9.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                </svg>
+            </span>
+            <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">{{ __('Galleries') }}</span>
+        </a>
+
+        <a
             href="{{ route('wayfinder') }}"
             class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
         >

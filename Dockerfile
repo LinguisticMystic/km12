@@ -53,6 +53,7 @@ RUN cp .env.example .env \
     && php artisan filament:assets \
     && rm -f .env
 
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint-app.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint-app.sh
 

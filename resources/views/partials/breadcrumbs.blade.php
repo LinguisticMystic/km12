@@ -1,5 +1,6 @@
 @php
     $eventShow = request()->routeIs('events.show') ? request()->route('event') : null;
+    $galleryShow = request()->routeIs('galleries.show') ? request()->route('gallery') : null;
 
     $current = match (true) {
         request()->routeIs('door-opener') => 'Door opener',
@@ -7,6 +8,8 @@
         request()->routeIs('calendar') => __('Calendar'),
         request()->routeIs('events.index') => __('Events'),
         request()->routeIs('events.show') => $eventShow?->name ?? __('Events'),
+        request()->routeIs('galleries.index') => __('Galleries'),
+        request()->routeIs('galleries.show') => $galleryShow?->name ?? __('Galleries'),
         request()->routeIs('about') => __('About'),
         request()->routeIs('login') => __('Log in'),
         default => null,
@@ -35,6 +38,17 @@
                         class="rounded-sm border border-transparent px-1 py-0.5 transition hover:border-[#19140035] hover:text-[#1b1b18] dark:hover:border-[#3E3E3A] dark:hover:text-[#EDEDEC]"
                     >
                         {{ __('Events') }}
+                    </a>
+                </li>
+            @endif
+            @if (request()->routeIs('galleries.show'))
+                <li class="text-[#c4c4c0] dark:text-[#5a5955]" aria-hidden="true">/</li>
+                <li>
+                    <a
+                        href="{{ route('galleries.index') }}"
+                        class="rounded-sm border border-transparent px-1 py-0.5 transition hover:border-[#19140035] hover:text-[#1b1b18] dark:hover:border-[#3E3E3A] dark:hover:text-[#EDEDEC]"
+                    >
+                        {{ __('Galleries') }}
                     </a>
                 </li>
             @endif

@@ -267,4 +267,148 @@ window.addEventListener('DOMContentLoaded', () => {
     if (hash.startsWith('schedule-entry-') || hash.startsWith('participant-')) {
         scrollToTarget(hash);
     }
+
+    initGalleryLightbox();
 });
+
+function initGalleryLightbox() {
+    const gallery = document.querySelector('[data-gallery]');
+
+    if (!gallery) {
+        return;
+    }
+
+    const dialog = gallery.querySelector('[data-gallery-dialog]');
+    const dialogImage = dialog?.querySelector('img');
+    const dialogCaption = dialog?.querySelector('[data-gallery-caption]');
+    const closeButton = dialog?.querySelector('[data-gallery-close]');
+    const prevButton = dialog?.querySelector('[data-gallery-prev]');
+    const nextButton = dialog?.querySelector('[data-gallery-next]');
+
+    if (!(dialog instanceof HTMLDialogElement) || !(dialogImage instanceof HTMLImageElement)) {
+        return;
+    }
+
+    let currentIndex = 0;
+
+    function items() {
+        return [...gallery.querySelectorAll('[data-gallery-open]')];
+    }
+
+    function showAt(index) {
+        const photos = items();
+
+        if (photos.length === 0) {
+            return;
+        }
+
+        currentIndex = (index + photos.length) % photos.length;
+        const trigger = photos[currentIndex];
+        const src = trigger.getAttribute('data-src');
+
+        if (!src) {
+            return;
+        }
+
+        dialogImage.src = src;
+        dialogImage.alt = trigger.getAttribute('data-alt') ?? '';
+
+        const caption = trigger.getAttribute('data-caption') ?? '';
+
+        if (dialogCaption instanceof HTMLElement) {
+            dialogCaption.hidden = caption === '';
+            dialogCaption.textContent = caption;
+        }
+
+        const showNav = photos.length > 1;
+
+        if (prevButton instanceof HTMLElement) {
+            prevButton.hidden = !showNav;
+        }
+
+        if (nextButton instanceof HTMLElement) {
+            nextButton.hidden = !showNav;
+        }
+
+        const previous = photos[(currentIndex - 1 + photos.length) % photos.length]?.getAttribute('data-src');
+        const next = photos[(currentIndex + 1) % photos.length]?.getAttribute('data-src');
+
+        [previous, next].forEach((preloadSrc) => {
+            if (!preloadSrc || preloadSrc === src) {
+                return;
+            }
+
+            const image = new Image();
+            image.src = preloadSrc;
+        });
+
+        window.getSelection()?.removeAllRanges();
+    }
+
+    function suppressMouseSelect(event) {
+        event.preventDefault();
+    }
+
+    gallery.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-gallery-open]');
+
+        if (!(trigger instanceof HTMLElement) || !gallery.contains(trigger)) {
+            return;
+        }
+
+        const photos = items();
+        const index = photos.indexOf(trigger);
+
+        if (index < 0) {
+            return;
+        }
+
+        showAt(index);
+        dialog.showModal();
+    });
+
+    prevButton?.addEventListener('mousedown', suppressMouseSelect);
+    nextButton?.addEventListener('mousedown', suppressMouseSelect);
+
+    prevButton?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        showAt(currentIndex - 1);
+    });
+
+    nextButton?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        showAt(currentIndex + 1);
+    });
+
+    closeButton?.addEventListener('click', () => {
+        dialog.close();
+    });
+
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) {
+            dialog.close();
+        }
+    });
+
+    dialog.addEventListener('keydown', (event) => {
+        if (!dialog.open) {
+            return;
+        }
+
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            showAt(currentIndex - 1);
+        }
+
+        if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            showAt(currentIndex + 1);
+        }
+    });
+
+    dialog.addEventListener('close', () => {
+        dialogImage.removeAttribute('src');
+        dialogImage.alt = '';
+        currentIndex = 0;
+    });
+}

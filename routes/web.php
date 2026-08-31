@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DoorOpenerController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\LocaleController;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,11 @@ Route::get('events', [EventController::class, 'index'])->name('events.index');
 Route::get('events/{id}', [EventController::class, 'redirectFromId'])
     ->whereNumber('id');
 Route::get('events/{event:slug}', [EventController::class, 'show'])->name('events.show');
+
+Route::get('galleries', [GalleryController::class, 'index'])->name('galleries.index');
+Route::get('galleries/{id}', [GalleryController::class, 'redirectFromId'])
+    ->whereNumber('id');
+Route::get('galleries/{gallery:slug}', [GalleryController::class, 'show'])->name('galleries.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
