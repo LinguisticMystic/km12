@@ -17,6 +17,7 @@
         @else
             <ul class="gallery-grid mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                 @foreach ($gallery->images as $image)
+                    @continue(! $image->url())
                     <li>
                         <button
                             type="button"

@@ -19,6 +19,9 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ImagesRelationManager extends RelationManager
 {
@@ -69,6 +72,7 @@ class ImagesRelationManager extends RelationManager
                             ->disk('public')
                             ->directory('galleries/'.$galleryId)
                             ->visibility('public')
+                            ->storeFiles(false)
                             ->maxSize(12288)
                             ->automaticallyResizeImagesMode('contain')
                             ->automaticallyResizeImagesToWidth(1600)
@@ -87,11 +91,29 @@ class ImagesRelationManager extends RelationManager
                     ->action(function (array $data): void {
                         /** @var Gallery $gallery */
                         $gallery = $this->getOwnerRecord();
+                        $directory = 'galleries/'.$gallery->getKey();
+                        $disk = Storage::disk('public');
+                        $disk->makeDirectory($directory);
+
+                        $directoryPath = $disk->path($directory);
+
+                        if (is_dir($directoryPath)) {
+                            @chmod($directoryPath, 0777);
+                        }
+
                         $sort = (int) ($gallery->images()->max('sort_order') ?? 0);
                         $annotation = filled($data['annotation'] ?? null) ? $data['annotation'] : null;
 
-                        foreach ($data['images'] ?? [] as $path) {
-                            if (! filled($path) || ! is_string($path)) {
+                        foreach (Arr::wrap($data['images'] ?? []) as $file) {
+                            $path = null;
+
+                            if ($file instanceof TemporaryUploadedFile) {
+                                $path = $file->store($directory, 'public');
+                            } elseif (is_string($file) && filled($file)) {
+                                $path = $file;
+                            }
+
+                            if (! is_string($path) || $path === '' || ! $disk->exists($path)) {
                                 continue;
                             }
 
