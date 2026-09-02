@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['gallery_id', 'path', 'annotation', 'sort_order'])]
+#[Fillable(['gallery_id', 'path', 'annotation', 'annotation_en', 'sort_order'])]
 class GalleryImage extends Model
 {
     protected static function booted(): void
@@ -25,6 +25,11 @@ class GalleryImage extends Model
     public function gallery(): BelongsTo
     {
         return $this->belongsTo(Gallery::class);
+    }
+
+    public function localizedAnnotation(): string
+    {
+        return localized_text($this->annotation, $this->annotation_en);
     }
 
     public function url(): ?string

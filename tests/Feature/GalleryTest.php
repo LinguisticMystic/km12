@@ -62,7 +62,8 @@ class GalleryTest extends TestCase
 
         $gallery->images()->create([
             'path' => 'galleries/1/one.jpg',
-            'annotation' => 'Photo: Jānis Bērziņš',
+            'annotation' => 'Foto: Jānis Bērziņš',
+            'annotation_en' => 'Photo: Jānis Bērziņš',
             'sort_order' => 1,
         ]);
 
@@ -76,7 +77,7 @@ class GalleryTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Workshop Night');
-        $response->assertSee('data-caption="Photo: Jānis Bērziņš"', false);
+        $response->assertSee('data-caption="Foto: Jānis Bērziņš"', false);
         $response->assertDontSee('<figcaption', false);
         $response->assertSee('data-gallery-prev', false);
         $response->assertSee('data-gallery-next', false);
@@ -208,5 +209,55 @@ class GalleryTest extends TestCase
         Storage::disk('public')->assertMissing('galleries/1/photo.jpg');
         $this->assertDatabaseMissing('galleries', ['id' => $gallery->id]);
         $this->assertDatabaseMissing('gallery_images', ['id' => $image->id]);
+    }
+
+    public function test_gallery_annotations_follow_the_active_locale(): void
+    {
+        $gallery = Gallery::query()->create([
+            'name' => 'Workshop Night',
+        ]);
+
+        $gallery->images()->create([
+            'path' => 'galleries/1/one.jpg',
+            'annotation' => 'Foto: Jānis Bērziņš',
+            'annotation_en' => 'Photo: John Birch',
+            'sort_order' => 1,
+        ]);
+
+        $this->get(route('galleries.show', $gallery))
+            ->assertOk()
+            ->assertSee('data-caption="Foto: Jānis Bērziņš"', false)
+            ->assertDontSee('data-caption="Photo: John Birch"', false);
+
+        $this->from(route('galleries.show', $gallery))
+            ->post(route('locale.update'), ['locale' => 'en'])
+            ->assertRedirect(route('galleries.show', $gallery));
+
+        $this->get(route('galleries.show', $gallery))
+            ->assertOk()
+            ->assertSee('data-caption="Photo: John Birch"', false)
+            ->assertDontSee('data-caption="Foto: Jānis Bērziņš"', false);
+    }
+
+    public function test_gallery_annotations_fall_back_when_a_translation_is_missing(): void
+    {
+        $gallery = Gallery::query()->create([
+            'name' => 'Workshop Night',
+        ]);
+
+        $gallery->images()->create([
+            'path' => 'galleries/1/one.jpg',
+            'annotation' => 'Foto: Anna',
+            'annotation_en' => null,
+            'sort_order' => 1,
+        ]);
+
+        $this->from(route('galleries.show', $gallery))
+            ->post(route('locale.update'), ['locale' => 'en'])
+            ->assertRedirect(route('galleries.show', $gallery));
+
+        $this->get(route('galleries.show', $gallery))
+            ->assertOk()
+            ->assertSee('data-caption="Foto: Anna"', false);
     }
 }

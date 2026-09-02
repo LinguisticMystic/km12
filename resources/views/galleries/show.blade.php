@@ -24,13 +24,13 @@
                             class="gallery-thumb group block w-full overflow-hidden rounded-2xl border border-[#e3e3e0] bg-white text-left shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition-colors hover:border-[#19140035] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1b1b18] dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b] dark:focus-visible:ring-[#EDEDEC]"
                             data-gallery-open
                             data-src="{{ $image->url() }}"
-                            data-alt="{{ $image->annotation ?: $gallery->name }}"
-                            data-caption="{{ $image->annotation }}"
+                            data-alt="{{ $image->localizedAnnotation() ?: $gallery->name }}"
+                            data-caption="{{ $image->localizedAnnotation() }}"
                             aria-haspopup="dialog"
                         >
                             <img
                                 src="{{ $image->url() }}"
-                                alt="{{ $image->annotation ?: $gallery->name }}"
+                                alt="{{ $image->localizedAnnotation() ?: $gallery->name }}"
                                 loading="lazy"
                                 decoding="async"
                                 class="aspect-square w-full object-cover"

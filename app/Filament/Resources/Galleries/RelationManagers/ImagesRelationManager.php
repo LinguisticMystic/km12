@@ -34,8 +34,12 @@ class ImagesRelationManager extends RelationManager
         return $schema
             ->components([
                 TextInput::make('annotation')
-                    ->label('Annotation')
+                    ->label('Annotation (LV)')
                     ->helperText('Photographer credit or a short note.')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                TextInput::make('annotation_en')
+                    ->label('Annotation (EN)')
                     ->maxLength(255)
                     ->columnSpanFull(),
             ]);
@@ -53,10 +57,16 @@ class ImagesRelationManager extends RelationManager
                     ->getStateUsing(fn (GalleryImage $record): ?string => $record->url())
                     ->square(),
                 TextColumn::make('annotation')
-                    ->label('Annotation')
+                    ->label('Annotation (LV)')
                     ->placeholder('—')
                     ->searchable()
                     ->wrap(),
+                TextColumn::make('annotation_en')
+                    ->label('Annotation (EN)')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->wrap()
+                    ->toggleable(),
             ])
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
@@ -84,8 +94,11 @@ class ImagesRelationManager extends RelationManager
                             ->helperText('Images are resized automatically. Camera files up to 12 MB are fine.')
                             ->columnSpanFull(),
                         TextInput::make('annotation')
-                            ->label('Annotation')
+                            ->label('Annotation (LV)')
                             ->helperText('Applied to every image in this upload. Leave blank to annotate later.')
+                            ->maxLength(255),
+                        TextInput::make('annotation_en')
+                            ->label('Annotation (EN)')
                             ->maxLength(255),
                     ])
                     ->action(function (array $data): void {
@@ -103,6 +116,7 @@ class ImagesRelationManager extends RelationManager
 
                         $sort = (int) ($gallery->images()->max('sort_order') ?? 0);
                         $annotation = filled($data['annotation'] ?? null) ? $data['annotation'] : null;
+                        $annotationEn = filled($data['annotation_en'] ?? null) ? $data['annotation_en'] : null;
 
                         foreach (Arr::wrap($data['images'] ?? []) as $file) {
                             $path = null;
@@ -120,6 +134,7 @@ class ImagesRelationManager extends RelationManager
                             $gallery->images()->create([
                                 'path' => $path,
                                 'annotation' => $annotation,
+                                'annotation_en' => $annotationEn,
                                 'sort_order' => ++$sort,
                             ]);
                         }
@@ -136,14 +151,18 @@ class ImagesRelationManager extends RelationManager
                         ->icon(Heroicon::OutlinedPencilSquare)
                         ->schema([
                             TextInput::make('annotation')
-                                ->label('Annotation')
+                                ->label('Annotation (LV)')
                                 ->helperText('Applied to all selected images. Clear the field to remove the annotation.')
+                                ->maxLength(255),
+                            TextInput::make('annotation_en')
+                                ->label('Annotation (EN)')
                                 ->maxLength(255),
                         ])
                         ->action(function (Collection $records, array $data): void {
-                            $annotation = filled($data['annotation'] ?? null) ? $data['annotation'] : null;
-
-                            $records->each->update(['annotation' => $annotation]);
+                            $records->each->update([
+                                'annotation' => filled($data['annotation'] ?? null) ? $data['annotation'] : null,
+                                'annotation_en' => filled($data['annotation_en'] ?? null) ? $data['annotation_en'] : null,
+                            ]);
                         })
                         ->deselectRecordsAfterCompletion(),
                     DeleteBulkAction::make(),
