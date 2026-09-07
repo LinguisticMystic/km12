@@ -104,6 +104,25 @@
             <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">Wayfinder</span>
         </a>
 
+        @auth
+            <a
+                href="{{ route('quest-board') }}"
+                class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
+            >
+                <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFC] text-[#1b1b18] transition group-hover:scale-105 sm:size-14 dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-7 sm:size-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 2.25A2.25 2.25 0 0 0 3.75 4.5v2.25H6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 2.25h9.75A2.25 2.25 0 0 1 18 4.5v.75l-1.5 1.5 1.5 1.5v10.5" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18.75V15.75l1.5-1.5L6 12.75V2.25" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18.75h14.25v1.5a1.5 1.5 0 0 1-1.5 1.5H7.5a1.5 1.5 0 0 1-1.5-1.5v-1.5Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5.25h6M9 15.75h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m12 7.5 1.05 1.95L15 10.5l-1.95 1.05L12 13.5l-1.05-1.95L9 10.5l1.95-1.05L12 7.5Z" />
+                    </svg>
+                </span>
+                <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">{{ __('Quest board') }}</span>
+            </a>
+        @endauth
+
         <a
             href="{{ route('about') }}"
             class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"

@@ -39,6 +39,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
+    Route::view('quest-board', 'tools.quest-board')->name('quest-board');
+
     // TODO: Keep Door opener off the public home grid until Arduino runs km12_door_opener firmware (API). Hidden from welcome.blade.php for now.
     Route::view('door-opener', 'tools.door-opener')->name('door-opener');
     Route::post('door-opener/door', [DoorOpenerController::class, 'openDoor'])->name('door-opener.open-door');

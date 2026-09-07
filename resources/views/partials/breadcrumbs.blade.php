@@ -4,6 +4,7 @@
 
     $current = match (true) {
         request()->routeIs('door-opener') => 'Door opener',
+        request()->routeIs('quest-board') => __('Quest board'),
         request()->routeIs('wayfinder') => 'Wayfinder',
         request()->routeIs('calendar') => __('Calendar'),
         request()->routeIs('events.index') => __('Events'),

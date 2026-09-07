@@ -700,6 +700,7 @@ class EventTest extends TestCase
         $response->assertSee(route('events.index'), false);
         $response->assertSee('Pasākumi');
         $response->assertDontSee('Door opener');
+        $response->assertDontSee('Kvestu dēlis');
         $response->assertDontSee('Gaidāmais pasākums');
         $response->assertDontSee('Gaidāmie pasākumi');
     }
