@@ -41,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Artists'),
                 NavigationGroup::make('Extras'),
                 NavigationGroup::make('Galleries'),
+                NavigationGroup::make('Quests'),
             ])
             ->navigationItems([
                 NavigationItem::make('website')

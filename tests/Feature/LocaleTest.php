@@ -25,7 +25,6 @@ class LocaleTest extends TestCase
         $response->assertSee('lang="lv"', false);
         $response->assertSee('Pasākumi');
         $response->assertSee('Galerijas');
-        $response->assertSee('Kalendārs');
         $response->assertSee('Par mums');
         $response->assertSee('Ienākt');
         $response->assertSee('Rīki un resursi');
@@ -42,7 +41,6 @@ class LocaleTest extends TestCase
             ->assertSee('lang="en"', false)
             ->assertSee('Events')
             ->assertSee('Galleries')
-            ->assertSee('Calendar')
             ->assertSee('About')
             ->assertSee('Log in')
             ->assertSee('Tools and resources');

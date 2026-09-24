@@ -5,6 +5,8 @@ use App\Http\Controllers\DoorOpenerController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\QuestBoardController;
+use App\Http\Controllers\QuestController;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
     Route::view('calendar', 'tools.calendar')->name('calendar');
+    Route::get('quest-board', QuestBoardController::class)->name('quest-board');
+    Route::post('quests/{quest}/start', [QuestController::class, 'start'])->name('quests.start');
+    Route::post('quests/{quest}/submit', [QuestController::class, 'submit'])->name('quests.submit');
 
     // TODO: Keep Door opener off the public home grid until Arduino runs km12_door_opener firmware (API). Hidden from welcome.blade.php for now.
     Route::view('door-opener', 'tools.door-opener')->name('door-opener');
