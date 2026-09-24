@@ -18,7 +18,6 @@ Route::post('locale', [LocaleController::class, 'update'])->name('locale.update'
 
 require __DIR__.'/wayfinder.php';
 
-Route::view('calendar', 'tools.calendar')->name('calendar');
 Route::view('about', 'about')->name('about');
 
 Route::get('events', [EventController::class, 'index'])->name('events.index');
@@ -39,7 +38,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
-    Route::view('quest-board', 'tools.quest-board')->name('quest-board');
+    Route::view('calendar', 'tools.calendar')->name('calendar');
 
     // TODO: Keep Door opener off the public home grid until Arduino runs km12_door_opener firmware (API). Hidden from welcome.blade.php for now.
     Route::view('door-opener', 'tools.door-opener')->name('door-opener');

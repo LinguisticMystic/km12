@@ -67,17 +67,19 @@
             <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">{{ __('Events') }}</span>
         </a>
 
-        <a
-            href="{{ route('calendar') }}"
-            class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
-        >
-            <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFC] text-[#1b1b18] transition group-hover:scale-105 sm:size-14 dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-7 sm:size-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                </svg>
-            </span>
-            <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">{{ __('Calendar') }}</span>
-        </a>
+        @auth
+            <a
+                href="{{ route('calendar') }}"
+                class="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-[#e3e3e0] bg-white p-4 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] transition hover:border-[#19140035] hover:shadow-md sm:gap-4 sm:p-6 dark:border-[#3E3E3A] dark:bg-[#161615] dark:hover:border-[#62605b]"
+            >
+                <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#FDFDFC] text-[#1b1b18] transition group-hover:scale-105 sm:size-14 dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-7 sm:size-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                </span>
+                <span class="flex min-h-10 items-center justify-center px-1 text-center text-sm font-medium leading-tight sm:min-h-0 sm:text-lg">{{ __('Calendar') }}</span>
+            </a>
+        @endauth
 
         <a
             href="{{ route('galleries.index') }}"
