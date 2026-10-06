@@ -162,7 +162,7 @@
         @if ($event->extraParticipants->isNotEmpty())
             <section class="mt-14" aria-labelledby="extras-heading">
                 <h2 id="extras-heading" class="text-2xl font-semibold tracking-tight">
-                    {{ __('Extras') }}
+                    {{ __('Experiences') }}
                 </h2>
 
                 <ul class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(14rem,16rem))] justify-center gap-4 sm:justify-start">
